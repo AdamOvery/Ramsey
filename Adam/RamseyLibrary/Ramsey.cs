@@ -4,29 +4,27 @@ namespace RamseyLibrary
 {
     public class Ramsey
     {
-        private int[] clique;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public Ramsey(RamseyConfig ramseyConfig)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             Config = ramseyConfig;
-            Edges = new bool[Config.VertexCount, Config.VertexCount];
-            clique = new int[Config.VertexCount];
 
             InitializeGraph();
         }
 
         public RamseyConfig Config { get; }
-        public bool[,] Edges { get; private set; }
 
         // Results
         public bool IsSuccess { get; private set; }
         public TimeSpan TimeTaken { get; private set; }
-        public IList<string> Solutions { get; } = new List<string>();
+        public int Iterations { get; private set; }
+        public IList<Solution> Solutions { get; } = new List<Solution>();
 
         public void InitializeGraph()
         {
+            Iterations = 0;
             IsSuccess = false;
             var startTime = DateTime.UtcNow;
 
@@ -35,9 +33,6 @@ namespace RamseyLibrary
 
             if (otherNodeCount % 4 != 0)
             {
-                // Clear down graph
-                Edges = new bool[Config.VertexCount, Config.VertexCount];
-
                 TimeTaken = DateTime.UtcNow - startTime;
                 Solutions.Clear();
                 return;
@@ -56,13 +51,15 @@ namespace RamseyLibrary
                 edgeLinks[loop] = loop + 1;
             }
 
+            var edges = new bool[Config.VertexCount, Config.VertexCount];
+
             while (true)
             {
                 if (GetNextValidEdgeLinkArray(edgeLinks, halfVertexCount))
                 {
+                    Iterations++;
                     // Clear down graph
-                    // TODO: We could use Pascal's Gray code idea. That should hopefully speed up resetting the graph each time... maybe.
-                    Edges = new bool[Config.VertexCount, Config.VertexCount];
+                    Array.Clear(edges);
 
                     for (var vertex1Index = 0; vertex1Index < Config.VertexCount; vertex1Index++)
                     {
@@ -70,18 +67,18 @@ namespace RamseyLibrary
                         {
                             var vertex2Index = (vertex1Index + edgeLinks[edgeIndex]) % Config.VertexCount;
 
-                            if (!Edges[vertex1Index, vertex2Index])
+                            if (!edges[vertex1Index, vertex2Index])
                             {
-                                ToggleEdge(vertex1Index, vertex2Index);
+                                ToggleEdge(edges, vertex1Index, vertex2Index);
                             }
                         }
                     }
 
-                    if (!IdentifyInvalidCliques())
+                    if (!IdentifyInvalidCliques(edges))
                     {
                         IsSuccess = true;
                         TimeTaken = DateTime.UtcNow - startTime;
-                        Solutions.Add(string.Join(",", edgeLinks));
+                        Solutions.Add(new Solution(edgeLinks, edges));
 
                         if (!Config.FindAllSolutions)
                         {
@@ -119,6 +116,8 @@ namespace RamseyLibrary
             }
         }
 
+        // This is the older version of GetNextValidEdgeLinkArray. There's very little difference in speed
+        // Let's keep this code for reference        
         private bool AreConsecutiveEdgeLinkCountsValid(int[] edgeLinks, int halfVertexCount)
         {
             for (var index = 0; index < edgeLinks.Length - 1; index++)
@@ -218,34 +217,34 @@ namespace RamseyLibrary
             return true;
         }
 
-        public bool IdentifyInvalidCliques()
+        public bool IdentifyInvalidCliques(bool[,] edges)
         {
-            clique = new int[Config.VertexCount];
-            if (FindCliques(0, 0, Config.MaxCliqueOn, true))
+            var clique = new int[Config.VertexCount];
+            if (FindCliques(edges, clique, 0, 0, Config.MaxCliqueOn, true))
             {
                 return true;
             }
             clique = new int[Config.VertexCount];
-            return FindCliques(0, 0, Config.MaxCliqueOff, false);
+            return FindCliques(edges, clique, 0, 0, Config.MaxCliqueOff, false);
         }
 
-        private void ToggleEdge(int vertex1, int vertex2)
+        private void ToggleEdge(bool[,] edges, int vertex1, int vertex2)
         {
-            if (Edges[vertex1, vertex2])
+            if (edges[vertex1, vertex2])
             {
-                Edges[vertex1, vertex2] = false;
-                Edges[vertex2, vertex1] = false;
+                edges[vertex1, vertex2] = false;
+                edges[vertex2, vertex1] = false;
             }
             else
             {
-                Edges[vertex1, vertex2] = true;
-                Edges[vertex2, vertex1] = true;
+                edges[vertex1, vertex2] = true;
+                edges[vertex2, vertex1] = true;
             }
         }
 
         // Function to check if the given set of vertices
         // in store array is a clique or not
-        private bool IsClique(int b, bool onOffCheck)
+        private bool IsClique(bool[,] edges, int[] clique, int b, bool onOffCheck)
         {
             // Run a loop for all the set of edges
             // for the select vertex
@@ -254,7 +253,7 @@ namespace RamseyLibrary
                 for (int j = i + 1; j < b; j++)
                 {
                     // If any edge is missing
-                    if (Edges[clique[i], clique[j]] != onOffCheck)
+                    if (edges[clique[i], clique[j]] != onOffCheck)
                     {
                         return false;
                     }
@@ -264,7 +263,7 @@ namespace RamseyLibrary
         }
 
         // Function to find all the cliques of size s
-        private bool FindCliques(int i, int l, int s, bool onOffCheck)
+        private bool FindCliques(bool[,] edges, int[] clique, int i, int l, int s, bool onOffCheck)
         {
             // Check if any vertices from i+1 can be inserted
             //            for (int j = i; j < Config.VertexCount - (s - l); j++)
@@ -275,13 +274,13 @@ namespace RamseyLibrary
                 clique[l] = j;
 
                 // If the graph is not a clique of size k then it cannot be a clique by adding another edge
-                if (IsClique(l + 1, onOffCheck))
+                if (IsClique(edges, clique, l + 1, onOffCheck))
                 {
                     // If the length of the clique is still less than the desired size
                     if (l + 1 < s)
                     {
                         // Recursion to add vertices
-                        if (FindCliques(j + 1, l + 1, s, onOffCheck))
+                        if (FindCliques(edges, clique, j + 1, l + 1, s, onOffCheck))
                         {
                             return true;
                         }

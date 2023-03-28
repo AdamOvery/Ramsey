@@ -40,14 +40,14 @@ if (findAllSolutions is null)
 var ramseyConfig = new RamseyConfig(vertexCount, maxCliqueOn, maxCliqueOff, findAllSolutions ?? false);
 var ramsey = new Ramsey(ramseyConfig);
 
-var description = $"R({ramseyConfig.MaxCliqueOn},{ramseyConfig.MaxCliqueOff}). Vertex Count: {ramseyConfig.VertexCount}";
+var description = $"R({ramseyConfig.MaxCliqueOn},{ramseyConfig.MaxCliqueOff}). Iterations: {ramsey.Iterations}. Vertex Count: {ramseyConfig.VertexCount}";
 var timeTaken = string.Format("{0:0.00}s", ramsey.TimeTaken.TotalMilliseconds / 1000);
 
 if (ramsey.IsSuccess)
 {
     foreach (var solution in ramsey.Solutions)
     {
-        Console.WriteLine($"{description}. Solution = {solution}. Found in {timeTaken}");
+        Console.WriteLine($"{description}. Solution = {solution.EdgeLinkDescription}. Found in {timeTaken}");
     }
 }
 else
