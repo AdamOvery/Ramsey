@@ -17,7 +17,7 @@ public class CliqueWatcher
 
     void onGraphChanged(IGraph sender)
     {
-        this.graph.forEachEdge((a, b) =>
+        this.graph.ForEachEdge((a, b) =>
         {
             Edge edge = edges.getEdge(a, b);
             edge.value = graph.GetEdgeValue(a, b);
