@@ -6,5 +6,6 @@ Common/obj
 Common/bin
 Pascal/obj
 Pascal/bin
-
-
+.vs
+Adam/.vs
+Pascal/.vscode
