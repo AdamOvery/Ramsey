@@ -7,23 +7,20 @@ public class PascalProgram
     {
         Console.WriteLine("Hello, World!");
 
-        MatrixGraph g = new MatrixGraph(10);
+        MatrixGraph g = new MatrixGraph(41);
 
-        g.GraphChanged += onGraphChanged;
-        g.EdgeChanged += onEdgeChanged;
+        Console.WriteLine("Creating Edges and CliqueWatcher...")
+        var pentagonSearch = new PentagonCliqueWatcher(g);
+        Console.WriteLine($"Originally on:{pentagonSearch.onCliques} off:{pentagonSearch.offCliques}");
 
-        void onGraphChanged(IGraph sender)
+        for (int a = 0; a <= 40; a++)
         {
-            Console.WriteLine("Graph changed");
-        }
+            for (int b = 0; b < a; b++)
+            {
 
-        void onEdgeChanged(IGraph sender, int n1, int n2, bool value)
-        {
-            Console.WriteLine("Edge changed");
+                g.SetEdgeValue(a, b, true);
+                Console.WriteLine($"Changed edge {a}-{b} on:{pentagonSearch.onCliques} off:{pentagonSearch.offCliques}");
+            }
         }
-        g.Clear();
-        g.SetEdgeValue(1, 2, true);
-
-        var pentagonSearch = new PentagonCliqueSearch(g);
     }
 }

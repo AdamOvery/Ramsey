@@ -9,7 +9,7 @@ public class Edge : Clique
         this.n2 = n2;
     }
 
-    new bool value
+    public new bool value
     {
         get { return base.value == CliqueValue.AllOn ? true : false; }
         set { base.value = value ? CliqueValue.AllOn : CliqueValue.AllOff; }

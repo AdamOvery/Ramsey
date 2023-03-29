@@ -2,20 +2,36 @@ using static Clique;
 
 namespace Pascal;
 
-public class PentagonCliqueSearch
+public class PentagonCliqueWatcher
 {
     Edge[] edges;
     Clique[] triangles;
     Clique[] squares;
     Clique[] pentagons;
 
-    int offInnerCliquesCount = 0;
-    int onInnerCliquesCount = 0;
+    public int offCliques = 0;
+    public int onCliques = 0;
     bool value;
+    private IGraph graph;
 
-
-    public PentagonCliqueSearch(IGraph graph)
+    void onGraphChanged(IGraph sender)
     {
+        this.graph.forEachEdge((a, b) =>
+        {
+            Edge edge = getEdge(a, b);
+            edge.value = graph.GetEdgeValue(a, b);
+        });
+    }
+
+    void onEdgeChanged(IGraph sender, int n1, int n2, bool value)
+    {
+        Edge edge = getEdge(n1, n2);
+        edge.value = value;
+    }
+
+    public PentagonCliqueWatcher(IGraph graph)
+    {
+        this.graph = graph;
         int o = graph.order;
         edges = new Edge[o * (o - 1) / 2]; //  (10*9) / 2 = 45
         triangles = new Clique[o * (o - 1) * (o - 2) / 6]; //  (10*9*8)/6 = 120
@@ -100,26 +116,32 @@ public class PentagonCliqueSearch
         {
             p.CliqueChanged += onInnerCliqueChanged;
         }
-        offInnerCliquesCount = pentagons.Length;
+        offCliques = pentagons.Length;
+
+        graph.EdgeChanged += onEdgeChanged;
+        graph.GraphChanged += onGraphChanged;
+
     }
 
 
     protected void onInnerCliqueChanged(Clique innerClique, CliqueValue value, CliqueValue previousValue)
     {
-        if (previousValue == CliqueValue.AllOn) onInnerCliquesCount -= 1;
-        else if (previousValue == CliqueValue.AllOff) offInnerCliquesCount -= 1;
+        if (previousValue == CliqueValue.AllOn) onCliques -= 1;
+        else if (previousValue == CliqueValue.AllOff) offCliques -= 1;
 
-        if (value == CliqueValue.AllOn) onInnerCliquesCount += 1;
-        else if (value == CliqueValue.AllOff) offInnerCliquesCount += 1;
+        if (value == CliqueValue.AllOn) onCliques += 1;
+        else if (value == CliqueValue.AllOff) offCliques += 1;
 
-        this.value = offInnerCliquesCount > 0 || onInnerCliquesCount > 0;
+        this.value = offCliques > 0 || onCliques > 0;
     }
 
 
     private Edge getEdge(int a, int b)
     {
-        if (a >= b) throw new ArgumentException("Invalid Edge");
-        var edgeNo = a + b * (b - 1) / 2;
+        int edgeNo;
+        if (a < b) edgeNo = a + b * (b - 1) / 2;
+        else if (a > b) edgeNo = b + a * (a - 1) / 2;
+        else throw new ArgumentException("Invalid Edge");
         return edges[edgeNo];
     }
 
@@ -156,4 +178,5 @@ public class PentagonCliqueSearch
     {
         if (!value) throw new Exception("Internal Assertion failed");
     }
+
 }
