@@ -1,4 +1,4 @@
-class Triangles
+class Triangles: ICliqueCollection
 {
     private Clique[] triangles;
     private int order;
@@ -26,6 +26,12 @@ class Triangles
             }
         }
     }
+
+    public IEnumerable<Clique> GetCliques()
+    {
+        return triangles;
+    }
+
 
     public Clique getTriangle(int a, int b, int c)
     {

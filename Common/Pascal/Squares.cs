@@ -1,4 +1,4 @@
-class Squares
+class Squares: ICliqueCollection
 {
     private Clique[] squares;
     private int order;
@@ -29,6 +29,11 @@ class Squares
                 }
             }
         }
+    }
+
+    public IEnumerable<Clique> GetCliques()
+    {
+        return squares;
     }
 
     public Clique getSquare(int a, int b, int c, int d)

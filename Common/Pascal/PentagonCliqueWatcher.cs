@@ -38,7 +38,7 @@ public class PentagonCliqueWatcher
         squares = new Squares(o, triangles);
         pentagons = new Pentagons(o, squares);
 
-        foreach (Clique p in pentagons.GetPentagons())
+        foreach (Clique p in pentagons.GetCliques())
         {
             p.CliqueChanged += onPentagonCliqueChanged;
         }

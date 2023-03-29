@@ -1,6 +1,6 @@
 using System.Collections;
 
-class Pentagons
+class Pentagons : ICliqueCollection
 {
     private Clique[] pentagons;
     private int order;
@@ -38,8 +38,7 @@ class Pentagons
         }
     }
 
-
-    public IEnumerable<Clique> GetPentagons()
+    public IEnumerable<Clique> GetCliques()
     {
         return pentagons;
     }
