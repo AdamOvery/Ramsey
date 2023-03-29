@@ -9,7 +9,7 @@ public class PascalProgram
 
         MatrixGraph g = new MatrixGraph(41);
 
-        Console.WriteLine("Creating Edges and CliqueWatcher...")
+        Console.WriteLine("Creating Edges and CliqueWatcher...");
         var pentagonSearch = new PentagonCliqueWatcher(g);
         Console.WriteLine($"Originally on:{pentagonSearch.onCliques} off:{pentagonSearch.offCliques}");
 
@@ -17,7 +17,6 @@ public class PascalProgram
         {
             for (int b = 0; b < a; b++)
             {
-
                 g.SetEdgeValue(a, b, true);
                 Console.WriteLine($"Changed edge {a}-{b} on:{pentagonSearch.onCliques} off:{pentagonSearch.offCliques}");
             }
