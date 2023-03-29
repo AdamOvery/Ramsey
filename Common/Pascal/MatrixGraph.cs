@@ -36,4 +36,16 @@ class MatrixGraph : IGraph
         edges = new bool[order, order];
         GraphChanged.Invoke(this);
     }
+
+    public static IGraphFactory factory = new MatrixGraphFactory();
+
+    private class MatrixGraphFactory : IGraphFactory
+    {
+        public IGraph newGraph(int order)
+        {
+            return new MatrixGraph(order);
+        }
+    }
+
 }
+
