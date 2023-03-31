@@ -1,6 +1,7 @@
 {
     "include": [
-        "ts/*.ts"
+        "ts/*.ts",
+        "Pages/*.ts"
     ],
     "compilerOptions": {
         "baseUrl": ".",
