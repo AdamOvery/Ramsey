@@ -1,0 +1,166 @@
+﻿@page "/graph"
+
+<PageTitle>Graph</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
+
+<!--
+<script setup lang="ts">
+import { onMounted, markRaw, ref, computed, watch } from 'vue';
+import { distSquared, distToSegmentSquared } from './dist';
+import { nameThisConfig } from './nameThisConfig';
+import tableVue from './TableVue.vue';
+import { shuffleGraph, type IGraph } from './Graph';
+import { CanvasEdge } from './CanvasEdge';
+import { CanvasNode } from './CanvasNode';
+
+const props = defineProps<{
+    graph: IGraph;
+    size?: number;
+    showEdges?: boolean;
+    showCliques?: boolean;
+}>()
+
+var canvasNodes: CanvasNode[];
+var canvasEdges: CanvasEdge[];
+var highlightedElement: CanvasEdge | CanvasNode | null = null;
+var canvasRef = ref()
+const canvasSize = computed(() => {
+    return props.size ?? Math.floor(Math.sqrt(props.graph.order) * 100);
+})
+
+const emit = defineEmits(["isoname", "edgechanged"])
+const isoName = ref("");
+
+onMounted(update)
+
+watch(() => props.graph, update)
+
+function update() {
+    setEdges();
+    draw();
+    emitEvents();
+}
+
+function mouseDown(_event: any) {
+    let g = props.graph;
+    if (highlightedElement instanceof CanvasEdge) {
+        let edge = highlightedElement
+        edge.isOn = !edge.isOn;
+        highlightedElement = null;
+        highlightedElement = edge;
+        g.setEdgeValue(edge.node1.id, edge.node2.id, edge.isOn);
+        emitEvents(edge);
+    } else if (highlightedElement instanceof CanvasNode) {
+        let n1 = highlightedElement.id;
+        let v = !g.getEdgeValue(n1, n1 == 0 ? 1 : 0)
+        for (let n2 = 0; n2 < g.order; n2++) {
+            g.setEdgeValue(n1, n2, v);
+        }
+        setEdges();
+        emitEvents();
+    }
+    draw();
+
+}
+
+function mouseMove(event: any) {
+    let underMouse = findEdgeOrNode(event.offsetX, event.offsetY);
+    if (underMouse != highlightedElement) {
+        highlightedElement = underMouse;
+        draw();
+    }
+}
+
+let displayedOrder = 0;
+let displayedSize = 0;
+
+function setEdges() {
+    let canvas = canvasRef.value;
+    if (!canvas) return;
+    let order = props.graph.order;
+    let size = canvasSize.value;
+    if (order != displayedOrder || size != displayedSize) {
+        canvasNodes = markRaw(CanvasNode.createNodes(order, size));
+        canvasEdges = markRaw(CanvasEdge.createEdges(canvasNodes));
+        let canvas = canvasRef.value
+        if (canvas) {
+            canvas.width = size;
+            canvas.height = size;
+        }
+        displayedOrder = order
+        displayedSize = size;
+    }
+    canvasEdges.forEach((canvasEdge) => {
+        if (canvasEdge) canvasEdge.isOn = props.graph.getEdgeValue(canvasEdge.node1.id, canvasEdge.node2.id);
+    });
+}
+
+function draw() {
+    let canvas = canvasRef.value;
+    if (!canvas) return;
+    let ctx = canvas!.getContext("2d");
+    ctx.clearRect(0, 0, canvasSize.value, canvasSize.value);
+    canvasEdges.forEach((edge) => edge.drawTwo(ctx, edge == highlightedElement));
+    canvasNodes.forEach((p) => p.drawTwo(ctx, undefined, p == highlightedElement));
+}
+
+function findEdgeOrNode(x: number, y: number): CanvasEdge | CanvasNode | null {
+    let best: CanvasEdge | CanvasNode | null = null;
+    let bestDistSqr = Number.MAX_VALUE;
+    let mouse = { x, y };
+    canvasNodes.forEach((node) => {
+        let distSqr = distSquared(mouse, node);
+        if (distSqr < 100) { // && distSqr < bestDistSqr) {
+            best = node;
+            bestDistSqr = bestDistSqr;
+        }
+    });
+    if (best == null) {
+        canvasEdges.forEach((edge) => {
+            let dist2 = distToSegmentSquared(mouse, edge.node1, edge.node2);
+            if (dist2 < 30 && dist2 < bestDistSqr) {
+                best = edge;
+                bestDistSqr = dist2;
+            }
+        });
+    }
+    return best;
+}
+
+function emitEvents(r?: CanvasEdge) {
+    // isoName.value = nameThisConfig(canvasNodes);
+    emit("isoname", isoName.value);
+    emit("edgechanged", r ? { a: r.node1.id, b: r.node2.id, value: r.isOn } : undefined)
+}
+
+function shuffle() {
+    shuffleGraph(props.graph);
+    update();
+}
+</script>
+
+<template>
+    <div class="graph">
+        <p>{{ isoName }}</p>
+        <canvas @mousemove="mouseMove" @mousedown="mouseDown" ref="canvasRef"> </canvas>
+        <button @click="shuffle">Shuffle</button>
+        <tableVue  :showEdges="showEdges" :showCliques="showCliques" :graph="graph"></tableVue>
+    </div>
+</template>
+
+-->
+
