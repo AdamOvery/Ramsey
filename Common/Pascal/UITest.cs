@@ -3,7 +3,7 @@ namespace Pascal;
 
 public class UITest
 {
-    public static void UITestMain()
+    public static void Run()
     {
         Console.WriteLine("Hi from UITest");
         // Window window = new Window("Pascal");

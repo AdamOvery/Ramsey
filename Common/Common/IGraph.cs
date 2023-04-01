@@ -37,58 +37,60 @@ public interface IGraph
         }
     }
 
-    private void forEachConfigurationEdge(int a0, int b0, Action action)
+    public void ForEachConfiguration(Action action)
     {
-        var a1 = a0 + 1;
-        var b1 = b0;
-        if (a1 >= b0)
+        Action<int, int> forEachEdge = (a0, b0) => { };
+        forEachEdge = (a0, b0) =>
         {
-            a1 = 0;
-            b1 += 1;
-        }
-        if (b1 == order)
-        {
+            var a1 = a0 + 1;
+            var b1 = b0;
+            if (a1 >= b0)
+            {
+                a1 = 0;
+                b1 += 1;
+            }
             SetEdgeValue(a0, b0, false);
-            action();
+            if (b1 == order) action(); else forEachEdge(a1, b1);
             SetEdgeValue(a0, b0, true);
-            action();
-        }
-        else
-        {
-            SetEdgeValue(a0, b0, false);
-            forEachConfigurationEdge(a1, b1, action);
-            SetEdgeValue(a0, b0, true);
-            forEachConfigurationEdge(a1, b1, action);
-        }
+            if (b1 == order) action(); else forEachEdge(a1, b1);
+        };
+        forEachEdge(0, 1);
     }
 
-    public void forEachConfiguration(Action action)
+    public void ForEachGrayConfiguration(Action action)
     {
-        forEachConfigurationEdge(0, 1, action);
+        int order = this.order;
+
+        Action<int, int> forEachEdge = (a0, b0) => { };
+        forEachEdge = (a0, b0) =>
+        {
+            var a1 = a0 + 1;
+            var b1 = b0;
+            if (a1 >= b0)
+            {
+                a1 = 0;
+                b1 += 1;
+            }
+            if (b1 == order)
+            {
+                this.SetEdgeValue(a0, b0, !this.GetEdgeValue(a0, b0));
+                action();
+            }
+            else
+            {
+                forEachEdge(a1, b1);
+                this.SetEdgeValue(a0, b0, !this.GetEdgeValue(a0, b0));
+                action();
+                forEachEdge(a1, b1);
+            }
+        };
+        forEachEdge(0, 1);
     }
 
 }
+
 
 public interface IGraphFactory
 {
     IGraph newGraph(int order);
 }
-
-// IGraph cloneGraph(IGraph g1, IGraphFactory factory)
-// {
-//     IGraph g2 = factory.newGraph(g1.order);
-//     copyGraph(g1, g2);
-//     return g2;
-// }
-
-//void shuffleGraph(Graph graph) {
-//   IGraph clone = cloneGraph(graph);
-//   var newOrder = [...Array(graph.order).keys()];
-//   for (let i = 0; i < 10; i++) newOrder = newOrder.sort((a, b) => 0.5 - Math.random());
-
-//   forEachEdge(graph, (a, b) =>
-//   {
-//       graph.setEdgeValue(newOrder[a], newOrder[b], clone.getEdgeValue(a, b));
-//   });
-//}
-

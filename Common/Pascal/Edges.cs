@@ -24,4 +24,12 @@ class Edges
         else throw new ArgumentException("Invalid Edge");
         return edges[edgeNo];
     }
+
+    static int getEdgeNo(int a, int b)
+    {
+        return a + b * (b - 1) / 2;
+    }
+
+
+
 }
