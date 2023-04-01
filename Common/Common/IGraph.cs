@@ -3,6 +3,7 @@ public delegate void EdgeChangedHandler(IGraph sender, int n1, int n2, bool valu
 
 public delegate void GraphChangedHandler(IGraph sender);
 
+
 public interface IGraph
 {
     int order { get; }
@@ -94,3 +95,5 @@ public interface IGraphFactory
 {
     IGraph newGraph(int order);
 }
+
+public delegate void OnNodeVisited(int visitedNode, int? parentNode);

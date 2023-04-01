@@ -5,8 +5,9 @@ namespace Pascal;
 class G6
 {
 
-    static IGraph parseGraph(string g6, IGraphFactory factory)
+    public static IGraph parseGraph(string g6, IGraphFactory? factory = null)
     {
+        if (factory == null) factory = MatrixGraph.factory;
         var order = g6[0] - 63;
         if (order < 0) throw new Exception("Invalid G6 data");
         var graph = factory.newGraph(order);
@@ -15,7 +16,7 @@ class G6
         for (int i = 1; i < g6.Length; i++)
         {
             var currentByte = g6[i] - 63;
-            if (order < 0) throw new Exception("Invalid G6 data");
+            if (currentByte < 0) throw new Exception("Invalid G6 data");
 
             var v = 32;
             while (v > 0)

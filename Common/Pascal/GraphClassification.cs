@@ -5,22 +5,20 @@ public class GraphClassification
 {
     public static void Run()
     {
-        const int order = 12;
 
-        IGraph g = new MatrixGraph(order);
 
-        // int count = 0;
-        // g.ForEachGrayConfiguration(() =>
+        // https://ramsey-paganaye.vercel.app/pascal/1?g6=K~{???A????S
+        IGraph g = G6.parseGraph("K~{???A????S");
+        // g.BFS((int node, int? parentNode) =>
         // {
-        //     count += 1;
-
+        //     Console.WriteLine($"BFS node:{node} parent:{parentNode}");
         // });
-        int edgeNo = 0;
-        g.ForEachEdge((n1, n2) =>
-        {
-            Console.WriteLine($"{edgeNo++},{n1},{n2}");
-        });
+        var longestCycle = g.LongestCycle(0);
+
+        Console.WriteLine(value: $"longestCycle:{StringUtils.Join1(longestCycle)}");
         //Console.WriteLine($"order:{order} count: {count}");
 
     }
+
+
 }
