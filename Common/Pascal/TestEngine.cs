@@ -2,7 +2,7 @@ namespace Pascal;
 // 
 public static class TestEngine
 {
-    public static void AssertTrue(string testName, Func<bool> condition)
+    public static void Assert(string testName, Func<bool> condition)
     {
         bool result;
         try

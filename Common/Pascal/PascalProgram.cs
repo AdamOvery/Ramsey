@@ -12,7 +12,8 @@ public class PascalProgram
         // GraphClassification.Tests();
         // BFSTraversal.Tests();
         // DFSTraversal.Tests();
-        ConnectedGroup.Tests();
+        //ConnectedGroup.Tests();
+        IsCliqueAlgorithm.Tests();
     }
 
 }

@@ -31,7 +31,7 @@ static class ConnectedGroup
             }
             AssertEquals("We have two groups", () => graph.ConnectedGroups().Count, 2);
             AssertEquals("Group 0 is", () => connectedGroups[0].ToString(), "0-1-2-3-4");
-            AssertEquals("Group 1 is", () => connectedGroups[1].ToString(), "6-8-11");
+            AssertEquals("Group 1 is", () => connectedGroups[1].ToString(), "6-8-11");            
         });
     }
 }

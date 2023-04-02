@@ -38,6 +38,7 @@ class G6
         return graph;
     }
 
+
     public static String fromGraph(IGraph g)
     {
         var result = new StringBuilder();
