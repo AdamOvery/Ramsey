@@ -1,5 +1,7 @@
 
 
+using Pascal;
+
 static class BFSTraversal
 {
 
@@ -46,6 +48,11 @@ static class BFSTraversal
                 traverseFrom(i, null);
             }
         }
+    }
+
+    public static void BFS(this SubGraph nodes, OnNodeVisited onNodeVisited)
+    {
+
     }
 }
 

@@ -101,3 +101,4 @@ public class CliqueWatcher
         this.valueOff = offCliques > 0;
     }
 }
+

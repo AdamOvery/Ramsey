@@ -1,8 +1,9 @@
 
+using System.Collections.Immutable;
+
 public delegate void EdgeChangedHandler(IGraph sender, int n1, int n2, bool value);
 
 public delegate void GraphChangedHandler(IGraph sender);
-
 
 public interface IGraph
 {
@@ -34,6 +35,17 @@ public interface IGraph
             for (int a = 0; a < b; a++)
             {
                 action(a, b);
+            }
+        }
+    }
+
+    public void ActiveEdges(Action<int, int> action)
+    {
+        for (int b = 0; b < this.order; b++)
+        {
+            for (int a = 0; a < b; a++)
+            {
+                if (this.GetEdgeValue(a, b)) action(a, b);
             }
         }
     }
@@ -87,13 +99,6 @@ public interface IGraph
         };
         forEachEdge(0, 1);
     }
-
-}
-
-
-public interface IGraphFactory
-{
-    IGraph newGraph(int order);
 }
 
 public delegate void OnNodeVisited(int visitedNode, int? parentNode);

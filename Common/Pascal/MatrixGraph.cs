@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Pascal;
 class MatrixGraph : IGraph
 {
@@ -13,7 +15,6 @@ class MatrixGraph : IGraph
         edges = new bool[order, order];
     }
     public int order { get; private set; }
-
 
     public bool GetEdgeValue(int n1, int n2)
     {
@@ -48,6 +49,4 @@ class MatrixGraph : IGraph
     }
 
 }
-
-
 
