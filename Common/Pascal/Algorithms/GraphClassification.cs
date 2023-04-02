@@ -3,7 +3,7 @@ namespace Pascal;
 
 public class GraphClassification
 {
-    public static void Run()
+    public static void Tests()
     {
 
 

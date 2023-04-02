@@ -2,20 +2,21 @@ namespace Pascal;
 
 public class SubGraph : ISubGraph
 {
-    private readonly IGraph graph;
-    private readonly int _graphOrder;
+    private readonly IGraph _graph;
+
     ISet<INode> _nodes;
     // Node[] _graphNodes ;
     public int order { get; private set; }
 
     public ISet<INode> nodes
     {
-        get {
-            return _nodes ;
+        get
+        {
+            return _nodes;
         }
     }
 
-    public int graphOrder { get { return _graphOrder; } }
+    public IGraph graph { get { return _graph; } }
 
 
     public class Node : INode
@@ -47,11 +48,13 @@ public class SubGraph : ISubGraph
         return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToHashSet<INode>();
     }
 
+    public SubGraph(ISubGraph subGraph, IEnumerable<INode> nodes) : this(subGraph.graph, nodes.Select(n => n.id))
+    {
+    }
 
     public SubGraph(IGraph graph, IEnumerable<int>? nodeIds = null)
     {
-        this.graph = graph;
-        this._graphOrder = graph.order;
+        this._graph = graph;
         if (nodeIds == null) nodeIds = Enumerable.Range(0, graph.order);
         this._nodes = nodeIds.Select(i => new Node(this, i) as INode).ToHashSet();
 
@@ -69,6 +72,12 @@ public class SubGraph : ISubGraph
         //         _nodes[n2]._adjacentNodes!.Remove(_nodes[n1]);
         //     }
         // };
+    }
+
+    public override string ToString()
+    {
+        var sortedNodeIds = nodes.Select(n => n.id).OrderBy(i => i);
+        return string.Join("-", sortedNodeIds);
     }
 
 }

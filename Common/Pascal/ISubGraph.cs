@@ -1,8 +1,8 @@
 namespace Pascal;
 
-interface ISubGraph
+public interface ISubGraph
 {
-    public int graphOrder { get; }
+    IGraph graph { get; }
 
     ISet<INode> nodes { get; }
 

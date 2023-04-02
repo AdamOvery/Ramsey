@@ -3,13 +3,13 @@ namespace Pascal;
 
 public class Ramsey3_4
 {
-    public static void Run()
+    public static void Tests()
     {
 
-        // Check_Ramsey_3_3_is_above_5();
-        //Check_Ramsey_3_3_is_equal_or_less_than_6();
+        Check_Ramsey_3_3_is_above_5();
+        Check_Ramsey_3_3_is_equal_or_less_than_6();
 
-        Check_Ramsey_3_4_is_above_8();
+        // Check_Ramsey_3_4_is_above_8();
         //Check_Ramsey_3_4_is_equal_or_less_than_9();
 
 

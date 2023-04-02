@@ -6,12 +6,13 @@ public class PascalProgram
     public static void PascalMain()
     {
         Console.WriteLine("Hello, World!");
-        // UITest.Run();
-        // Ramsey3_4.Run();
-        // GraphGrayCode.Run();
-        // GraphClassification.Run();
-        BFSTraversal.Tests();
-        DFSTraversal.Tests();
+        // UITest.Tests();
+        // Ramsey3_4.Tests();
+        // GraphGrayCode.Tests();
+        // GraphClassification.Tests();
+        // BFSTraversal.Tests();
+        // DFSTraversal.Tests();
+        ConnectedGroup.Tests();
     }
 
 }

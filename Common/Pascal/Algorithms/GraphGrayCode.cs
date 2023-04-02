@@ -3,7 +3,7 @@ namespace Pascal;
 
 public class GraphGrayCode
 {
-    public static void Run()
+    public static void Tests()
     {
         ForEachGrayConfigurationStats(true, 4, 4);
 
