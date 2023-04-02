@@ -13,9 +13,7 @@ public class GraphClassification
         // {
         //     Console.WriteLine($"BFS node:{node} parent:{parentNode}");
         // });
-        var longestCycle = g.LongestCycle(0);
-
-        Console.WriteLine(value: $"longestCycle:{StringUtils.Join1(longestCycle)}");
+    
         //Console.WriteLine($"order:{order} count: {count}");
 
     }

@@ -1,48 +1,46 @@
-
+using Pascal;
+using static Pascal.TestEngine;
 
 static class LongestCycleSearch
 {
-    public static IEnumerable<int>? LongestCycle(this IGraph g, int startingNode)
+    // perhaps inspired from  Johnson's Algorithm - All simple cycles in directed graph
+    // https://www.youtube.com/watch?v=johyrWospv0&t=1184s
+
+    public static ISubGraph LongestCycle(this ISubGraph subGraph)
     {
-        int order = g.order;
-        int[] visited = new int[order];
-        int[] path = new int[order];
-        var traverseFrom = new Action<int, int>((start, level) => { });
-        int length = 0;
-        int bestLength = 2; // a cycle of length 2 is not a cycle so we'll start at 3 
-        int[]? bestPath = null;
+        // bool[] visited = new bool[subGraph.graph.order];
+        // var traverseFrom = new Action<INode, INode?>((start, parentNode) => { });
 
-        traverseFrom = (int start, int level) =>
+        // traverseFrom = (INode start, INode? parentNode) =>
+        // {
+        //     visited[start.id] = true;
+        //     bool first = true;
+
+        //     foreach (var n in start.adjacentNodes)
+        //     {
+        //         if (first)
+        //         {
+        //             first = false;
+        //         }
+        //         if (!visited[n.id]) traverseFrom(n, start);
+        //     }
+        // };
+        // foreach (var n in subGraph.nodes)
+        // {
+        //     if (!visited[n.id]) traverseFrom(n, null);
+        // }
+        return new SubGraph(subGraph, new List<INode>());
+    }
+
+    internal static void Tests()
+    {
+        Test("Longest Subgraph", () =>
         {
-
-            visited[start] = level;
-            path[level - 1] = start;
-
-            for (var i = 0; i < order; i++)
-            {
-                if (g.GetEdgeValue(start, i))
-                {
-                    if (visited[i] > 0)
-                    {
-                        length = level - visited[i] + 1;
-                        if (length > bestLength)
-                        {
-                            bestLength = length;
-                            bestPath = new int[length];
-                            Array.Copy(path, visited[i] - 1, bestPath, 0, length);
-                        }
-                    }
-                    else
-                    {
-                        traverseFrom(i, level + 1);
-                    }
-                }
-            }
-            visited[start] = 0;
-        };
-        traverseFrom(startingNode, 1);
-        return bestPath;
-
+            AssertEquals("square", () => G6.parse("Cl").AsSubGraph().LongestCycle().ToString(), "0-1-2-3");
+            AssertEquals("square with diagonnal", () => G6.parse("Cn").AsSubGraph().LongestCycle().ToString(), "0-1-2-3");
+            AssertEquals("shuffled square", () => G6.parse("Cr").AsSubGraph().LongestCycle().ToString(), "0-1-2-3");
+            AssertEquals("shuffled square with diagonnal", () => G6.parse("Cr").AsSubGraph().LongestCycle().ToString(), "0-1-2-3");
+        });
     }
 
 }

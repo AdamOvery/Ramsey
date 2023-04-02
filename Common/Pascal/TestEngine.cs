@@ -9,24 +9,30 @@ public static class TestEngine
         {
             result = condition.Invoke();
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Console.WriteLine($"[Error] Failed {testName}");
             Console.WriteLine(e.ToString());
             throw;
         }
         if (result) Console.WriteLine($"[Pass] {testName}");
-        else Console.WriteLine($"[Error] Failed {testName} returned false.");
+        else
+        {
+            var error = $"{testName} (false)";
+            Console.WriteLine($"[Failed] {error}.");
+            throw new TestFailedException(error);
+        }
     }
 
     public static void AssertEquals<T>(string testName, Func<T> test, T expected)
     {
+        // if (testName.IndexOf("{}") >= 0) testName = testName.Replace("{}", ToString(expected));
         var actual = default(T);
         try
         {
             actual = test.Invoke();
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Console.WriteLine($"[Error] Failed {testName}");
             Console.WriteLine(e.ToString());
@@ -34,10 +40,19 @@ public static class TestEngine
         }
         if ((expected == null && actual == null)
         || (expected != null && expected.Equals(actual))) Console.WriteLine($"[Pass] {testName}: {actual}");
-        else Console.WriteLine($"[Error] Failed {testName}: expected {expected}, actual {actual}");
+        else
+        {
+            var error = $"{testName} expected {expected}, actual {actual}";
+            Console.WriteLine($"[Failed] {error}");
+            throw new TestFailedException(error);
+        }
     }
 
-
+    private static string ToString(object? o)
+    {
+        if (o is string s) return $"\"{s}\"";
+        else return o?.ToString() ?? "null";
+    }
 
     public static void Test(string testName, Action action)
     {
@@ -47,11 +62,16 @@ public static class TestEngine
             action();
             Console.WriteLine($"[Pass] {testName}");
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Console.WriteLine($"[Error] Failed {testName}");
-            Console.WriteLine(e.ToString());
+            if (!(e is TestFailedException)) Console.WriteLine(e.ToString());
             throw;
         }
+    }
+
+    public class TestFailedException : Exception
+    {
+        public TestFailedException(string message) : base(message) { }
     }
 }

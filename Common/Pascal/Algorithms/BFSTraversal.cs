@@ -5,7 +5,7 @@ static class BFSTraversal
     public static void BFS(this ISubGraph subGraph, OnNodeVisited onNodeVisited)
     {
         bool[] visited = new bool[subGraph.graph.order];
-        var traverseFrom = new Action<INode, INode?>((a, b) => { });
+        var traverseFrom = new Action<INode, INode?>((start, parentNode) => { });
 
         traverseFrom = (INode start, INode? parentNode) =>
         {
