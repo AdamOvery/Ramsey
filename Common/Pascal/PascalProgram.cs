@@ -9,7 +9,9 @@ public class PascalProgram
         // UITest.Run();
         // Ramsey3_4.Run();
         // GraphGrayCode.Run();
-        GraphClassification.Run();
+        // GraphClassification.Run();
+        BFSTraversal.Tests();
+        DFSTraversal.Tests();
     }
 
 }

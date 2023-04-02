@@ -1,10 +1,22 @@
 namespace Pascal;
 
-public class SubGraph
+public class SubGraph : ISubGraph
 {
-    Node[] _nodes;
+    private readonly IGraph graph;
+    private readonly int _graphOrder;
+    ISet<INode> _nodes;
     // Node[] _graphNodes ;
     public int order { get; private set; }
+
+    public ISet<INode> nodes
+    {
+        get {
+            return _nodes ;
+        }
+    }
+
+    public int graphOrder { get { return _graphOrder; } }
+
 
     public class Node : INode
     {
@@ -35,37 +47,29 @@ public class SubGraph
         return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToHashSet<INode>();
     }
 
-    private readonly IGraph graph;
 
     public SubGraph(IGraph graph, IEnumerable<int>? nodeIds = null)
     {
         this.graph = graph;
+        this._graphOrder = graph.order;
         if (nodeIds == null) nodeIds = Enumerable.Range(0, graph.order);
-        this._nodes = nodeIds.Select(i => new Node(this, i)).ToArray();
+        this._nodes = nodeIds.Select(i => new Node(this, i) as INode).ToHashSet();
 
-        graph.GraphChanged += (a) => Array.ForEach(_nodes, (n) => n._adjacentNodes = null);
-        graph.EdgeChanged += (sender, n1, n2, value) =>
-        {
-            if (value)
-            {
-                (_nodes[n1]._adjacentNodes ??= new HashSet<INode>()).Add(_nodes[n2]);
-                (_nodes[n2]._adjacentNodes ??= new HashSet<INode>()).Add(_nodes[n1]);
-            }
-            else
-            {
-                _nodes[n1]._adjacentNodes!.Remove(_nodes[n2]);
-                _nodes[n2]._adjacentNodes!.Remove(_nodes[n1]);
-            }
-        };
+        // graph.GraphChanged += (a) => Array.ForEach(_nodes, (n) => n._adjacentNodes = null);
+        // graph.EdgeChanged += (sender, n1, n2, value) =>
+        // {
+        //     if (value)
+        //     {
+        //         (_nodes[n1]._adjacentNodes ??= new HashSet<INode>()).Add(_nodes[n2]);
+        //         (_nodes[n2]._adjacentNodes ??= new HashSet<INode>()).Add(_nodes[n1]);
+        //     }
+        //     else
+        //     {
+        //         _nodes[n1]._adjacentNodes!.Remove(_nodes[n2]);
+        //         _nodes[n2]._adjacentNodes!.Remove(_nodes[n1]);
+        //     }
+        // };
     }
 
 }
 
-public static class NodesExtensions
-{
-    public static SubGraph Nodes(this IGraph g)
-    {
-        return new SubGraph(g);
-    }
-
-}

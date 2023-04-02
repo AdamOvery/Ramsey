@@ -101,4 +101,4 @@ public interface IGraph
     }
 }
 
-public delegate void OnNodeVisited(int visitedNode, int? parentNode);
+public delegate void OnNodeIdVisited(int visitedNode, int? parentNode);

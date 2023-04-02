@@ -5,7 +5,7 @@ namespace Pascal;
 class G6
 {
 
-    public static IGraph parseGraph(string g6, IGraphFactory? factory = null)
+    public static IGraph parse(string g6, IGraphFactory? factory = null)
     {
         if (factory == null) factory = MatrixGraph.factory;
         var order = g6[0] - 63;
@@ -69,7 +69,7 @@ class G6
 
     private static void TestG6(string g6String, int order, Action<IGraph> innerTests)
     {
-        var g = parseGraph(g6String, MatrixGraph.factory);
+        var g = parse(g6String, MatrixGraph.factory);
         innerTests.Invoke(g);
         var newG6String = G6.fromGraph(g);
         if (g6String != newG6String) throw new Exception($"Internal Error in G6 methods expected: {g6String} actual: {newG6String}");
