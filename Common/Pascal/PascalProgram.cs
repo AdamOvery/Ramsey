@@ -8,6 +8,7 @@ public class PascalProgram
         Console.WriteLine("Hello, World!");
         // BFSTraversal.Tests();
         // ConnectedGroup.Tests();
+        // CutVerticesAlgorithm.Tests();
         CutVerticesAlgorithm.Tests();
         // DFSTraversal.Tests();
         // GraphClassification.Tests();

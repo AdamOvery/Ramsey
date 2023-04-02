@@ -1,7 +1,10 @@
+using System.Diagnostics;
+
 namespace Pascal;
 // 
 public static class TestEngine
 {
+    [DebuggerHidden]
     public static void Assert(string testName, Func<bool> condition)
     {
         bool result;
@@ -24,6 +27,7 @@ public static class TestEngine
         }
     }
 
+    [DebuggerHidden]
     public static void AssertEquals<T>(string testName, Func<T> test, T expected)
     {
         // if (testName.IndexOf("{}") >= 0) testName = testName.Replace("{}", ToString(expected));
@@ -48,12 +52,14 @@ public static class TestEngine
         }
     }
 
+    [DebuggerHidden]
     private static string ToString(object? o)
     {
         if (o is string s) return $"\"{s}\"";
         else return o?.ToString() ?? "null";
     }
 
+    [DebuggerHidden]
     public static void Test(string testName, Action action)
     {
         Console.WriteLine($"* {testName}");

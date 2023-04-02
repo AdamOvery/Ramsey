@@ -1,15 +1,15 @@
 using Pascal;
 using static Pascal.TestEngine;
 
-static class CutVerticesAlgorithm
+static class AnotherCutVerticesAlgorithm
 {
 
-    public class CutVertex
+    public class AnotherCutVertex
     {
         public readonly INode articulationNode;
         public readonly List<ISubGraph> subGraphs;
 
-        public CutVertex(INode articulationNode)
+        public AnotherCutVertex(INode articulationNode)
         {
             this.articulationNode = articulationNode;
             subGraphs = new List<ISubGraph>();
@@ -22,12 +22,12 @@ static class CutVerticesAlgorithm
     }
 
 
-    public static List<CutVertex> CutVertices(this ISubGraph subGraph)
+    public static List<AnotherCutVertex> AnotherCutVertices(this ISubGraph subGraph)
     {
 #if DEBUG
         Assert("CutVertices only works on Connected Graphs", () => subGraph.IsConnected());
 #endif
-        var result = new List<CutVertex>();
+        var result = new List<AnotherCutVertex>();
 
         var traverseFrom = new Action<INode>((start) => { });
 
@@ -49,7 +49,7 @@ static class CutVerticesAlgorithm
                 }
             };
 
-            CutVertex? cutVertex = null;
+            AnotherCutVertex? cutVertex = null;
 
             foreach (var n2 in cutNode.adjacentNodes)
             {
@@ -63,7 +63,7 @@ static class CutVerticesAlgorithm
                     {
                         if (cutVertex == null)
                         {
-                            cutVertex = new CutVertex(cutNode);
+                            cutVertex = new AnotherCutVertex(cutNode);
                             result.Add(cutVertex);
                         }
                         cutVertex.subGraphs.Add(new SubGraph(subGraph, subGraphNodes));
@@ -80,7 +80,7 @@ static class CutVerticesAlgorithm
         Test("Minimal CutVertices", () =>
         {
             ISubGraph graph = G6.parse("Bg").AsSubGraph();
-            var cutVertices = graph.CutVertices();
+            var cutVertices = graph.AnotherCutVertices();
             foreach (var cutVertex in cutVertices) Console.WriteLine($" - CutVertex:{cutVertex}");
             AssertEquals("CutVertices.Count", () => cutVertices.Count, 1);
             AssertEquals("CutVertex 0 is", () => cutVertices[0].ToString(), "1 0-1 1-2");
@@ -88,7 +88,7 @@ static class CutVerticesAlgorithm
         Test("Medium CutVertices", () =>
         {
             ISubGraph graph = G6.parse("D{c").AsSubGraph();
-            var cutVertices = graph.CutVertices();
+            var cutVertices = graph.AnotherCutVertices();
             foreach (var cutVertex in cutVertices) Console.WriteLine($" - CutVertex:{cutVertex}");
             AssertEquals("We have one cutVertices", () => cutVertices.Count, 1);
             AssertEquals("CutVertex 0 is", () => cutVertices[0].ToString(), "0 0-1-2 0-3-4");
@@ -96,7 +96,7 @@ static class CutVerticesAlgorithm
         Test("Bigger CutVertices", () =>
         {
             ISubGraph graph = G6.parse("FhMCG").AsSubGraph();
-            var cutVertices = graph.CutVertices();
+            var cutVertices = graph.AnotherCutVertices();
             foreach (var cutVertex in cutVertices) Console.WriteLine($" - CutVertex:{cutVertex}");
             AssertEquals("We have three cutVertices", () => cutVertices.Count, 3);
             AssertEquals("CutVertex 0 is", () => cutVertices[0].ToString(), "0 0-1-2-3-4 0-5-6");
@@ -106,7 +106,7 @@ static class CutVerticesAlgorithm
         Test("No CutVertices", () =>
         {
             ISubGraph graph = G6.parse("FhMKG").AsSubGraph();
-            AssertEquals("We have no cutVertices", () => graph.CutVertices().Count, 0);
+            AssertEquals("We have no cutVertices", () => graph.AnotherCutVertices().Count, 0);
         });
     }
 

@@ -41,6 +41,8 @@ public class SubGraph : ISubGraph
             this.nodes = nodes;
             this.id = id;
         }
+
+        override public string ToString() => id.ToString();
     }
 
     private ISet<INode> getAdjacentNodes(Node n1)
