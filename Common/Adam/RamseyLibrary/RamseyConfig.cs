@@ -1,15 +1,15 @@
-﻿namespace RamseyLibrary
+﻿namespace Ramsey.Adam.RamseyLibrary
 {
     public class RamseyConfig
     {
-        public int VertexCount { get; set; }
+        public int NodeCount { get; set; }
         public int MaxCliqueOn { get; set; }
         public int MaxCliqueOff { get; set; }
         public bool FindAllSolutions { get; set; }
 
-        public RamseyConfig(int vertexCount, int maxCliqueOn, int maxCliqueOff, bool findAllSolutions)
+        public RamseyConfig(int nodeCount, int maxCliqueOn, int maxCliqueOff, bool findAllSolutions)
         {
-            VertexCount = vertexCount;
+            NodeCount = nodeCount;
             MaxCliqueOn = maxCliqueOn;
             MaxCliqueOff = maxCliqueOff;
             FindAllSolutions = findAllSolutions;

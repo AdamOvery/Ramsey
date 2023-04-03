@@ -1,35 +1,32 @@
 ﻿using System.Net;
 
-namespace RamseyLibrary
+namespace Ramsey.Adam.RamseyLibrary
 {
-    public class Ramsey
+    public class RamseyGraphA : IRamseyGraph
     {
-
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public Ramsey(RamseyConfig ramseyConfig)
+        public RamseyGraphA(RamseyConfig ramseyConfig)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             Config = ramseyConfig;
-
-            InitializeGraph();
         }
 
         public RamseyConfig Config { get; }
-
         // Results
         public bool IsSuccess { get; private set; }
         public TimeSpan TimeTaken { get; private set; }
         public int Iterations { get; private set; }
-        public IList<Solution> Solutions { get; } = new List<Solution>();
+        public IList<Solution> Solutions { get; private set; }
 
         public void InitializeGraph()
         {
             Iterations = 0;
             IsSuccess = false;
+            Solutions = new List<Solution>();
             var startTime = DateTime.UtcNow;
 
             // Currently this will only work for node counts of 5, 9, 13, 17, etc.
-            var otherNodeCount = Config.VertexCount - 1;
+            var otherNodeCount = Config.NodeCount - 1;
 
             if (otherNodeCount % 4 != 0)
             {
@@ -38,7 +35,7 @@ namespace RamseyLibrary
                 return;
             }
 
-            var halfVertexCount = otherNodeCount / 2;
+            var halfNodeCount = otherNodeCount / 2;
             var edgeLinkCount = otherNodeCount / 4;
 
             // The edgeLinks are the links to "other" nodes that every node will have.
@@ -51,25 +48,25 @@ namespace RamseyLibrary
                 edgeLinks[loop] = loop + 1;
             }
 
-            var edges = new bool[Config.VertexCount, Config.VertexCount];
+            var edges = new bool[Config.NodeCount, Config.NodeCount];
 
             while (true)
             {
-                if (GetNextValidEdgeLinkArray(edgeLinks, halfVertexCount))
+                if (GetNextValidEdgeLinkArray(edgeLinks, halfNodeCount))
                 {
                     Iterations++;
                     // Clear down graph
                     Array.Clear(edges);
 
-                    for (var vertex1Index = 0; vertex1Index < Config.VertexCount; vertex1Index++)
+                    for (var node1Index = 0; node1Index < Config.NodeCount; node1Index++)
                     {
                         for (var edgeIndex = 0; edgeIndex < edgeLinkCount; edgeIndex++)
                         {
-                            var vertex2Index = (vertex1Index + edgeLinks[edgeIndex]) % Config.VertexCount;
+                            var node2Index = (node1Index + edgeLinks[edgeIndex]) % Config.NodeCount;
 
-                            if (!edges[vertex1Index, vertex2Index])
+                            if (!edges[node1Index, node2Index])
                             {
-                                ToggleEdge(edges, vertex1Index, vertex2Index);
+                                ToggleEdge(edges, node1Index, node2Index);
                             }
                         }
                     }
@@ -89,7 +86,7 @@ namespace RamseyLibrary
 
                 // Try the next edgeLink setting
                 var maxGoodEdgeIndex = edgeLinkCount - 1;
-                var maxAllowedEdgeLinkValue = halfVertexCount;
+                var maxAllowedEdgeLinkValue = halfNodeCount;
 
                 while (true)
                 {
@@ -118,7 +115,7 @@ namespace RamseyLibrary
 
         // This is the older version of GetNextValidEdgeLinkArray. There's very little difference in speed
         // Let's keep this code for reference        
-        private bool AreConsecutiveEdgeLinkCountsValid(int[] edgeLinks, int halfVertexCount)
+        private bool AreConsecutiveEdgeLinkCountsValid(int[] edgeLinks, int halfNodeCount)
         {
             for (var index = 0; index < edgeLinks.Length - 1; index++)
             {
@@ -139,9 +136,9 @@ namespace RamseyLibrary
                 }
             }
 
-            // If the highest edge link is less than or equal to "Half Vertex Count" - MaxCliqueOff, then we have an "end-gap" too big
+            // If the highest edge link is less than or equal to "Half Node Count" - MaxCliqueOff, then we have an "end-gap" too big
             // Which will result in an invalid "Off" clique
-            if (edgeLinks[edgeLinks.Length - 1] <= halfVertexCount - Config.MaxCliqueOff)
+            if (edgeLinks[edgeLinks.Length - 1] <= halfNodeCount - Config.MaxCliqueOff)
             {
                 return false;
             }
@@ -149,7 +146,7 @@ namespace RamseyLibrary
             return true;
         }
 
-        private bool GetNextValidEdgeLinkArray(int[] edgeLinks, int halfVertexCount)
+        private bool GetNextValidEdgeLinkArray(int[] edgeLinks, int halfNodeCount)
         {
             var index = 0;
 
@@ -199,13 +196,13 @@ namespace RamseyLibrary
                     }
                 }
 
-                // If the highest edge link is less than or equal to "Half Vertex Count" - MaxCliqueOff, then we have an "end-gap" too big
+                // If the highest edge link is less than or equal to "Half Node Count" - MaxCliqueOff, then we have an "end-gap" too big
                 // Which will result in an invalid "Off" clique
                 if (index == edgeLinks.Length - 1)
                 {
-                    if (edgeLinks[edgeLinks.Length - 1] <= halfVertexCount - Config.MaxCliqueOff)
+                    if (edgeLinks[edgeLinks.Length - 1] <= halfNodeCount - Config.MaxCliqueOff)
                     {
-                        edgeLinks[edgeLinks.Length - 1] = halfVertexCount - Config.MaxCliqueOff + 1;
+                        edgeLinks[edgeLinks.Length - 1] = halfNodeCount - Config.MaxCliqueOff + 1;
                         // And try again
                         continue;
                     }
@@ -219,26 +216,26 @@ namespace RamseyLibrary
 
         public bool IdentifyInvalidCliques(bool[,] edges)
         {
-            var clique = new int[Config.VertexCount];
+            var clique = new int[Config.NodeCount];
             if (FindCliques(edges, clique, 0, 0, Config.MaxCliqueOn, true))
             {
                 return true;
             }
-            clique = new int[Config.VertexCount];
+            clique = new int[Config.NodeCount];
             return FindCliques(edges, clique, 0, 0, Config.MaxCliqueOff, false);
         }
 
-        private void ToggleEdge(bool[,] edges, int vertex1, int vertex2)
+        private void ToggleEdge(bool[,] edges, int node1, int node2)
         {
-            if (edges[vertex1, vertex2])
+            if (edges[node1, node2])
             {
-                edges[vertex1, vertex2] = false;
-                edges[vertex2, vertex1] = false;
+                edges[node1, node2] = false;
+                edges[node2, node1] = false;
             }
             else
             {
-                edges[vertex1, vertex2] = true;
-                edges[vertex2, vertex1] = true;
+                edges[node1, node2] = true;
+                edges[node2, node1] = true;
             }
         }
 
@@ -247,7 +244,7 @@ namespace RamseyLibrary
         private bool IsClique(bool[,] edges, int[] clique, int b, bool onOffCheck)
         {
             // Run a loop for all the set of edges
-            // for the select vertex
+            // for the select node
             for (int i = 0; i < b; i++)
             {
                 for (int j = i + 1; j < b; j++)
@@ -266,11 +263,11 @@ namespace RamseyLibrary
         private bool FindCliques(bool[,] edges, int[] clique, int i, int l, int s, bool onOffCheck)
         {
             // Check if any vertices from i+1 can be inserted
-            //            for (int j = i; j < Config.VertexCount - (s - l); j++)
+            //            for (int j = i; j < Config.NodeCount - (s - l); j++)
 
-            for (int j = i; j < Config.VertexCount; j++)
+            for (int j = i; j < Config.NodeCount; j++)
             {
-                // Add the vertex to clique
+                // Add the node to clique
                 clique[l] = j;
 
                 // If the graph is not a clique of size k then it cannot be a clique by adding another edge

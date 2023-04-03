@@ -1,4 +1,4 @@
-﻿namespace RamseyLibrary
+﻿namespace Ramsey.Adam.RamseyLibrary
 {
     public class Solution
     {
