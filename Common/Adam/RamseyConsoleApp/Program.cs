@@ -80,7 +80,7 @@ class AdamProgram
         {
             foreach (var solution in ramsey.Solutions)
             {
-                Console.WriteLine($"{description}. Solution = {solution.EdgeLinkDescription}. Found in {timeTaken}");
+                Console.WriteLine($"{description}. Solution = {solution.EdgeDescription}. Found in {timeTaken}");
             }
         }
         else

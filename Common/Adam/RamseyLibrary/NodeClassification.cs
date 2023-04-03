@@ -5,8 +5,9 @@ namespace Ramsey.Adam.RamseyLibrary
     public class NodeClassification
     {
         private List<int>[] NodeLists { get; }
-        private Dictionary<int, List<int>> DistancesDictionary { get; set; }
-        private int?[] NodeDistances { get; set; }
+        public Dictionary<int, List<int>> DistancesDictionary { get; }
+        public int?[] NodeDistances { get; }
+        public int NodeCount { get; private set; }
 
         public NodeClassification(RamseyConfig config, List<int>[] nodeLists)
         {
@@ -34,6 +35,7 @@ namespace Ramsey.Adam.RamseyLibrary
         {
             Array.Clear(NodeDistances);
             DistancesDictionary.Clear();
+            NodeCount = 1; // Include self
 
             NodeDistances[nodeStartIndex] = 0;
             DistancesDictionary.Add(0, new List<int>() { nodeStartIndex });
@@ -58,6 +60,7 @@ namespace Ramsey.Adam.RamseyLibrary
                         NodeDistances[nodeToIndex] = distance + 1;
                         DistancesDictionary[distance + 1].Add(nodeToIndex);
                         isFound = true;
+                        NodeCount++;
                     }
                 }
             }

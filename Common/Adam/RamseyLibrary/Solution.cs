@@ -20,5 +20,29 @@
             }
         }
 
+        public string EdgeDescription
+        {
+            get
+            {
+                var results = string.Empty;
+                for (var node1 = 0; node1 < Edges.GetLength(0); node1++)
+                {
+                    var result = node1.ToString() + ":";
+
+                    for (var node2 = 0; node2 < Edges.GetLength(1); node2++)
+                    {
+                        if (Edges[node1, node2])
+                        {
+                            result += " " + node2.ToString();
+                        }
+                    }
+
+                    results += result + Environment.NewLine;
+                }
+
+                return results;
+            }
+        }
+
     }
 }

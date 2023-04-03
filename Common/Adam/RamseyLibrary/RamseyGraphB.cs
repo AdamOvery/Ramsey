@@ -24,12 +24,26 @@ namespace Ramsey.Adam.RamseyLibrary
         public int MinEdgeCount { get; set; }
         public int MaxEdgeCount { get; private set; }
 
+        private GraphEdges CreateNewGraphEdges()
+        {
+            var edges = new bool[Config.NodeCount, Config.NodeCount];
+            var nodeLists = new List<int>[Config.NodeCount];
+            for (var nodeIndex = 0; nodeIndex < Config.NodeCount; nodeIndex++)
+            {
+                nodeLists[nodeIndex] = new List<int>();
+            }
+
+            return new GraphEdges(edges, nodeLists);
+        }
+
         public void InitializeGraph()
         {
             Iterations = 0;
             IsSuccess = false;
             Solutions = new List<Solution>();
             var startTime = DateTime.UtcNow;
+
+            var graphEdges = CreateNewGraphEdges();
 
             MaxEdgeCount = MinEdgeCount + 1;
 
@@ -46,22 +60,14 @@ namespace Ramsey.Adam.RamseyLibrary
                 edgeLinks[loop] = loop + 1;
             }
 
-            var edges = new bool[Config.NodeCount, Config.NodeCount];
-            var nodeLists = new List<int>[Config.NodeCount];
-            for (var nodeIndex = 0; nodeIndex < Config.NodeCount; nodeIndex++)
-            {
-                nodeLists[nodeIndex] = new List<int>();
-            }
-
             if (!GetNextValidEdgeLinkArray(edgeLinks, halfNodeCount))
             {
                 TimeTaken = DateTime.UtcNow - startTime;
                 return;
             }
 
-            Iterations++;
             // Clear down graph
-            Array.Clear(edges);
+            Array.Clear(graphEdges.Edges);
 
             for (var node1Index = 0; node1Index < Config.NodeCount; node1Index++)
             {
@@ -69,64 +75,209 @@ namespace Ramsey.Adam.RamseyLibrary
                 {
                     var node2Index = (node1Index + edgeLinks[edgeIndex]) % Config.NodeCount;
 
-                    if (!edges[node1Index, node2Index])
+                    if (!graphEdges.Edges[node1Index, node2Index])
                     {
-                        ToggleEdge(edges, nodeLists, node1Index, node2Index);
+                        ToggleEdge(graphEdges.Edges, graphEdges.NodeLists, node1Index, node2Index);
                     }
                 }
             }
 
-            if (!IdentifyInvalidCliques(edges))
-            {
-                IsSuccess = true;
-                TimeTaken = DateTime.UtcNow - startTime;
-                Solutions.Add(new Solution(edgeLinks, edges));
+            var fullGraphIds = new Dictionary<string, bool>();
+            var graphQueue = new Queue<GraphEdges>();
+            var distances = new int[Config.NodeCount, Config.NodeCount];
 
-                if (!Config.FindAllSolutions)
+            do
+            {
+                var nodeClassification = new NodeClassification(Config, graphEdges.NodeLists);
+
+                var nodeIds = new Dictionary<string, List<int>>();
+                var minIds = new Dictionary<string, List<int>>();
+                var maxIds = new Dictionary<string, List<int>>();
+
+                Array.Clear(distances);
+                var isSingleGroup = true;
+                for (var nodeIndex = 0; nodeIndex < Config.NodeCount; nodeIndex++)
                 {
-                    return;
+                    var nodeId = nodeClassification.ClassifyNode(nodeIndex);
+
+                    // Find the distance between all nodes
+                    for (var nodeToIndex = 0; nodeToIndex < Config.NodeCount; nodeToIndex++)
+                    {
+                        distances[nodeIndex, nodeToIndex] = nodeClassification.NodeDistances[nodeToIndex] ?? 0;
+                    }
+
+                    if (nodeClassification.NodeCount < Config.NodeCount)
+                    {
+                        isSingleGroup = false;
+                        break;
+                    }
+
+                    // Add to generic dictionary
+                    if (!nodeIds.ContainsKey(nodeId))
+                    {
+                        nodeIds.Add(nodeId, new List<int>());
+                    }
+                    nodeIds[nodeId].Add(nodeIndex);
+
+                    // Add to min and max dictionaries
+                    var sizeIds = (graphEdges.NodeLists[nodeIndex].Count == MinEdgeCount) ? minIds : maxIds;
+
+                    if (!sizeIds.ContainsKey(nodeId))
+                    {
+                        sizeIds.Add(nodeId, new List<int>());
+                    }
+                    sizeIds[nodeId].Add(nodeIndex);
+                }
+
+                if (isSingleGroup)
+                {
+                    var fullGraphId = string.Join(",", nodeIds.Values.Select(v => v.Count).OrderBy(v => v).Select(v => v.ToString()).ToList()) +
+                        "x" + string.Join(",", nodeIds.Keys.OrderBy(k => k).ToList());
+
+                    if (!fullGraphIds.ContainsKey(fullGraphId))
+                    {
+                        fullGraphIds.Add(fullGraphId, true);
+
+                        Iterations++;
+
+                        if (!IdentifyInvalidCliques(graphEdges.Edges))
+                        {
+                            IsSuccess = true;
+                            TimeTaken = DateTime.UtcNow - startTime;
+                            var solution = new Solution(edgeLinks, graphEdges.Edges);
+                            Solutions.Add(solution);
+
+                            if (!Config.FindAllSolutions)
+                            {
+                                return;
+                            }
+                        }
+
+                        FindEdgesToRemove(graphQueue, graphEdges, maxIds);
+                        FindEdgesToAdd(graphQueue, graphEdges, minIds, distances);
+
+                        // I think we could create a hash of the fullGraphId above
+                        // Add to a dictionary of these, so we can ignore those graphs if we find them again
+                        // Loop through each entry and do the above for each one.
+                    }
+                }
+            } while (graphQueue.TryDequeue(out graphEdges));
+
+            TimeTaken = DateTime.UtcNow - startTime;
+        }
+
+        private void FindEdgesToAdd(Queue<GraphEdges> graphQueue, GraphEdges graphEdges, Dictionary<string, List<int>> minIds, int[,] distances)
+        {
+            // TODO:
+
+            // Go through all with "Min Edge Count" and look for edges we can add.
+            // NB: We will need to nodeClassificiation Node Distances too because the distance matters as well as the node "type"
+            // e.g. If you have 6 identical nodes, it could well be that 2 are at distance 1, 2 are at distance 2 and 1 is at distance 3. 
+            // Each of the 3 options result in a different graph.
+
+            var groupFromIndex = 0;
+            foreach (var minNodeListsFrom in minIds.Values)
+            {
+                var groupToIndex = 0;
+                foreach (var minNodeListsTo in minIds.Values)
+                {
+                    // We only need each group pair once, if groupToIndex > groupFromIndex, we'll do that when the two values are swapped over
+                    if (groupToIndex > groupFromIndex)
+                    {
+                        break;
+                    }
+
+                    // We need a quick way of doing this. This is probably far too slow.
+                    var ramseyEdges = FindFirstLinkToAddAtEachDistance(graphEdges, minNodeListsFrom, minNodeListsTo, distances);
+
+                    foreach (var ramseyEdge in ramseyEdges.Values)
+                    {
+                        var newGraphEdges = GetNewGraph(graphEdges, ramseyEdge);
+                        graphQueue.Enqueue(newGraphEdges);
+                    }
+
+                    groupToIndex++;
+                }
+
+                groupFromIndex++;
+            }
+
+        }
+
+        private void FindEdgesToRemove(Queue<GraphEdges> graphQueue, GraphEdges graphEdges, Dictionary<string, List<int>> maxIds)
+        {
+            var groupFromIndex = 0;
+            foreach (var maxNodeListsFrom in maxIds.Values)
+            {
+                var groupToIndex = 0;
+                foreach (var maxNodeListsTo in maxIds.Values)
+                {
+                    // We only need each group pair once, if groupToIndex > groupFromIndex, we'll do that when the two values are swapped over
+                    if (groupToIndex > groupFromIndex)
+                    {
+                        break;
+                    }
+
+                    // We need a quick way of doing this. This is probably far too slow.
+                    var ramseyEdge = FindFirstLinkToRemove(graphEdges, maxNodeListsFrom, maxNodeListsTo);
+
+                    if (ramseyEdge is not null)
+                    {
+                        var newGraphEdges = GetNewGraph(graphEdges, ramseyEdge);
+                        graphQueue.Enqueue(newGraphEdges);
+                    }
+
+                    groupToIndex++;
+                }
+
+                groupFromIndex++;
+            }
+        }
+
+        private GraphEdges GetNewGraph(GraphEdges graphEdges, RamseyEdge ramseyEdge)
+        {
+            var newGraphEdges = graphEdges.Clone();
+            ToggleEdge(newGraphEdges.Edges, newGraphEdges.NodeLists, ramseyEdge.Node1Index, ramseyEdge.Node2Index);
+
+            return newGraphEdges;
+        }
+
+        private static RamseyEdge? FindFirstLinkToRemove(GraphEdges graphEdges, List<int> nodeListsFrom, List<int> nodeListsTo)
+        {
+            foreach (var nodeIdFrom in nodeListsFrom)
+            {
+                foreach (var nodeIdTo in nodeListsTo)
+                {
+                    if (graphEdges.Edges[nodeIdFrom, nodeIdTo])
+                    {
+                        return new RamseyEdge(nodeIdFrom, nodeIdTo);
+                    }
                 }
             }
 
+            return null;
+        }
 
-            // Test Code
-            //ToggleEdge(edges, nodeLists, 0, 1);
-            //ToggleEdge(edges, nodeLists, 1, 2);
-            //ToggleEdge(edges, nodeLists, 2, 3);
-            //ToggleEdge(edges, nodeLists, 3, 4);
-            //ToggleEdge(edges, nodeLists, 4, 0);
+        private static Dictionary<int, RamseyEdge> FindFirstLinkToAddAtEachDistance(GraphEdges graphEdges, List<int> nodeListsFrom, List<int> nodeListsTo, int[,] distances)
+        {
+            var ramseyEdges = new Dictionary<int, RamseyEdge>();
 
-            var nodeClassification = new NodeClassification(Config, nodeLists);
-
-            var nodeIds = new List<string>();
-
-            for(var nodeIndex = 0; nodeIndex < Config.NodeCount; nodeIndex++)
+            foreach (var nodeIdFrom in nodeListsFrom)
             {
-                nodeIds.Add(nodeClassification.ClassifyNode(nodeIndex));
+                foreach (var nodeIdTo in nodeListsTo)
+                {
+                    if (!graphEdges.Edges[nodeIdFrom, nodeIdTo])
+                    {
+                        var distance = distances[nodeIdFrom, nodeIdTo];
+                        if (!ramseyEdges.ContainsKey(distance) && (distance > 0)) // Don't add a link to itself!
+                        {
+                            ramseyEdges[distance] = new RamseyEdge(nodeIdFrom, nodeIdTo);
+                        }
+                    }
+                }
             }
 
-            var fullGraphId = string.Join(",", nodeIds.OrderBy(i => i).ToList());
-
-            //return fullGraphId;
-
-            // TODO:
-
-            // Create dictionary of node Ids to classify how many "types" of node there are. 
-
-            // Categorize all nodes into ones with the "Min Edge Count" and those with "Max Edge Count"
-            // Go through all with "Max Edge Count" and look for edges we can remove
-            // Go through all with "Min Edge Count" and look for edges we can add.
-            // NB: For the latter, we will need to nodeClassificiation Node Distances too because the distance matters as well as the node "type"
-            // e.g. If you have 6 identical nodes, it could well be that 2 are at distance 1, 2 are at distance 2 and 1 is at distance 3. 
-            // Each of the 3 options result in a different graph. 
-            // NB: Obviously this doesn't apply to removing edges, because they are always as distance 1
-
-            // I think we should create a hash of the fullGraphId above
-            // Add to a dictionary of these, so we can ignore those graphs if we find them again
-            // Loop through each entry and do the above for each one.
-
-
-            TimeTaken = DateTime.UtcNow - startTime;
+            return ramseyEdges;
         }
 
         private bool GetNextValidEdgeLinkArray(int[] edgeLinks, int halfNodeCount)
