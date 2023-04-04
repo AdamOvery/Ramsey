@@ -53,6 +53,30 @@ public static class TestEngine
     }
 
     [DebuggerHidden]
+    public static void AssertEquals<T>(string testName, Func<T> test, string expected)
+    {
+        var actual = default(T);
+        try
+        {
+            actual = test.Invoke();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[Error] Failed {testName}");
+            Console.WriteLine(e.ToString());
+            throw;
+        }
+        if ((expected == null && actual == null)
+        || (expected != null && actual != null && actual.ToString() == expected)) Console.WriteLine($"[Pass] {testName}: {actual}");
+        else
+        {
+            var error = $"{testName} expected {expected}, actual {actual}";
+            Console.WriteLine($"[Failed] {error}");
+            throw new TestFailedException(error);
+        }
+    }
+
+    [DebuggerHidden]
     private static string ToString(object? o)
     {
         if (o is string s) return $"\"{s}\"";

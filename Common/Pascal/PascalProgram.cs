@@ -14,6 +14,7 @@ public class PascalProgram
         // GraphClassification.Tests();
         // GraphGrayCode.Tests();
         // IsCliqueAlgorithm.Tests();
+        IsConnectedAlgorithm.Tests();
         LongestCycleSearch.Tests();
         // Ramsey3_4.Tests();
         // UITest.Tests();
