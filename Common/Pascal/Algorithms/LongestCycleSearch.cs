@@ -29,7 +29,7 @@ static class LongestCycleSearch
         // {
         //     if (!visited[n.id]) traverseFrom(n, null);
         // }
-        return new SubGraph(subGraph, new List<INode>());
+        return subGraph; // new SubGraph(subGraph, new List<INode>());
     }
 
     internal static void Tests()

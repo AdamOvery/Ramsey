@@ -66,7 +66,7 @@ static class AnotherCutVerticesAlgorithm
                             cutVertex = new AnotherCutVertex(cutNode);
                             result.Add(cutVertex);
                         }
-                        cutVertex.subGraphs.Add(new SubGraph(subGraph, subGraphNodes));
+                        cutVertex.subGraphs.Add(subGraph.CreateSubGraph(subGraphNodes));
                     }
 
                 }

@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        "ms-dotnettools.vscode-dotnet-pack",
+        "harryhopkinson.vs-code-runner"
+    ]
+}

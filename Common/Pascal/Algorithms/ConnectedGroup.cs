@@ -16,7 +16,7 @@ static class ConnectedGroup
             }
             currentSubGraph!.Add(visitedNode);
         });
-        return result.Select(g => new SubGraph(subGraph, g) as ISubGraph).ToList();
+        return result.Select(g => subGraph.CreateSubGraph(g)).ToList();
     }
 
     internal static void Tests()

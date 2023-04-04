@@ -66,7 +66,7 @@ static class CutVerticesAlgorithm
                             foundOne = true;
                             result.articulationNodes.Add(cutNode);
                         }
-                        var localSubGraph = new SubGraph(subGraph, subGraphNodes);
+                        var localSubGraph = subGraph.CreateSubGraph(subGraphNodes);
                         var localSubGraphsCutVertices = CutVertices(localSubGraph);
                         if (localSubGraphsCutVertices.subGraphs.Count > 0)
                         {
