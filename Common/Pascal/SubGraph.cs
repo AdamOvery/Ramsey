@@ -22,7 +22,7 @@ public class SubGraph : ISubGraph
 
     public class Node : INode
     {
-        private readonly SubGraph nodes;
+        private readonly SubGraph subGraph;
 
         public int id { get; private set; }
 
@@ -33,15 +33,15 @@ public class SubGraph : ISubGraph
         {
             get
             {
-                return this._adjacentNodes ??= nodes.getAdjacentNodes(this);
+                return this._adjacentNodes ??= subGraph.getAdjacentNodes(this);
             }
         }
 
         public string Label { get; set; }
 
-        public Node(SubGraph nodes, int id)
+        public Node(SubGraph subGraph, int id)
         {
-            this.nodes = nodes;
+            this.subGraph = subGraph;
             this.id = id;
             this.Label = "";
         }
@@ -54,15 +54,19 @@ public class SubGraph : ISubGraph
         return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToHashSet<INode>();
     }
 
-    internal SubGraph(IGraph graph, IEnumerable<int>? nodeIds = null)
+    protected SubGraph(IGraph graph, IEnumerable<INode>? nodes = null)
     {
         this._graph = graph;
-        if (nodeIds == null) nodeIds = Enumerable.Range(0, graph.order);
-        this._nodes = nodeIds.Select(i => new Node(this, i) as INode).ToHashSet();
-
+        if (nodes == null) nodes = Enumerable.Range(0, graph.order).Select(id => this.CreateNode(id));
+        this._nodes = nodes.ToHashSet();
         this.Label = "";
-
     }
+
+    virtual protected Node CreateNode(int id)
+    {
+        return new Node(this, id);
+    }
+
 
     public override string ToString()
     {
@@ -72,7 +76,7 @@ public class SubGraph : ISubGraph
 
     public ISubGraph CreateSubGraph(IEnumerable<INode> nodes)
     {
-        return new SubGraph(this.graph, nodes.Select(n => n.id));
+        return new SubGraph(this.graph, nodes);
     }
 
     public static readonly ISubGraphFactory factory = new SubGraphFactory();
