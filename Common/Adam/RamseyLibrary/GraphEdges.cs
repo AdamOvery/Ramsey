@@ -5,6 +5,8 @@
         public bool[,] Edges { get; }
         public List<int>[] NodeLists { get; }
 
+        public bool IsDown { get; set; } = false;
+
         public GraphEdges(bool[,] edges, List<int>[] nodeLists)
         {
             Edges = edges;

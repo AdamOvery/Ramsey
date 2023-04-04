@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Ramsey.Adam.RamseyLibrary
+﻿namespace Ramsey.Adam.RamseyLibrary
 {
     public class RamseyGraphB : IRamseyGraph
     {
@@ -83,8 +81,10 @@ namespace Ramsey.Adam.RamseyLibrary
             }
 
             var fullGraphIds = new Dictionary<string, bool>();
-            var graphQueue = new Queue<GraphEdges>();
+            var graphQueueUp = new Queue<GraphEdges>();
+            var graphQueueDown = new Queue<GraphEdges>();
             var distances = new int[Config.NodeCount, Config.NodeCount];
+            graphEdges.IsDown = (MinEdgeCount % 2 != 0);
 
             do
             {
@@ -153,28 +153,55 @@ namespace Ramsey.Adam.RamseyLibrary
                             }
                         }
 
-                        FindEdgesToRemove(graphQueue, graphEdges, maxIds);
-                        FindEdgesToAdd(graphQueue, graphEdges, minIds, distances);
+                        if (graphEdges.IsDown)
+                        {
+                            if (!FindEdgesToRemove(graphQueueDown, graphEdges, maxIds))
+                            {
+                                FindEdgesToAdd(graphQueueUp, graphEdges, minIds, distances);
+                            }
+                        }
+                        else
+                        {
+                            if (!FindEdgesToAdd(graphQueueUp, graphEdges, minIds, distances))
+                            {
+                                FindEdgesToRemove(graphQueueDown, graphEdges, maxIds);
+                            }
+                        }
 
                         // I think we could create a hash of the fullGraphId above
                         // Add to a dictionary of these, so we can ignore those graphs if we find them again
                         // Loop through each entry and do the above for each one.
                     }
                 }
-            } while (graphQueue.TryDequeue(out graphEdges));
+
+                graphEdges = GetNextGraphEdges(graphQueueUp, graphQueueDown);
+
+            } while (graphEdges is not null);
 
             TimeTaken = DateTime.UtcNow - startTime;
         }
 
-        private void FindEdgesToAdd(Queue<GraphEdges> graphQueue, GraphEdges graphEdges, Dictionary<string, List<int>> minIds, int[,] distances)
+        private GraphEdges? GetNextGraphEdges(Queue<GraphEdges> graphQueueUp, Queue<GraphEdges> graphQueueDown)
         {
-            // TODO:
+            GraphEdges? graphEdges;
+            if (graphQueueUp.TryDequeue(out graphEdges))
+            {
+                graphEdges.IsDown = false;
+                return graphEdges;
+            }
 
-            // Go through all with "Min Edge Count" and look for edges we can add.
-            // NB: We will need to nodeClassificiation Node Distances too because the distance matters as well as the node "type"
-            // e.g. If you have 6 identical nodes, it could well be that 2 are at distance 1, 2 are at distance 2 and 1 is at distance 3. 
-            // Each of the 3 options result in a different graph.
+            if (graphQueueDown.TryDequeue(out graphEdges))
+            {
+                graphEdges.IsDown = true;
+                return graphEdges;
+            }
 
+            return null;
+        }
+
+        private bool FindEdgesToAdd(Queue<GraphEdges> graphQueue, GraphEdges graphEdges, Dictionary<string, List<int>> minIds, int[,] distances)
+        {
+            var result = false;
             var groupFromIndex = 0;
             foreach (var minNodeListsFrom in minIds.Values)
             {
@@ -194,6 +221,7 @@ namespace Ramsey.Adam.RamseyLibrary
                     {
                         var newGraphEdges = GetNewGraph(graphEdges, ramseyEdge);
                         graphQueue.Enqueue(newGraphEdges);
+                        result = true;
                     }
 
                     groupToIndex++;
@@ -202,10 +230,12 @@ namespace Ramsey.Adam.RamseyLibrary
                 groupFromIndex++;
             }
 
+            return result;
         }
 
-        private void FindEdgesToRemove(Queue<GraphEdges> graphQueue, GraphEdges graphEdges, Dictionary<string, List<int>> maxIds)
+        private bool FindEdgesToRemove(Queue<GraphEdges> graphQueue, GraphEdges graphEdges, Dictionary<string, List<int>> maxIds)
         {
+            var result = false;
             var groupFromIndex = 0;
             foreach (var maxNodeListsFrom in maxIds.Values)
             {
@@ -225,6 +255,7 @@ namespace Ramsey.Adam.RamseyLibrary
                     {
                         var newGraphEdges = GetNewGraph(graphEdges, ramseyEdge);
                         graphQueue.Enqueue(newGraphEdges);
+                        result = true;
                     }
 
                     groupToIndex++;
@@ -232,6 +263,8 @@ namespace Ramsey.Adam.RamseyLibrary
 
                 groupFromIndex++;
             }
+
+            return result;
         }
 
         private GraphEdges GetNewGraph(GraphEdges graphEdges, RamseyEdge ramseyEdge)
