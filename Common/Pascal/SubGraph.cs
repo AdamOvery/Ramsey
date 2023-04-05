@@ -59,6 +59,7 @@ public class SubGraph : ISubGraph
         this._graph = graph;
         if (nodes == null) nodes = Enumerable.Range(0, graph.order).Select(id => this.CreateNode(id));
         this._nodes = nodes.ToHashSet();
+        this.order = _nodes.Count;
         this.Label = "";
     }
 
