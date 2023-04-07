@@ -4,9 +4,16 @@ class AdamProgram
 {
     public static void AdamMain()
     {
-        Console.WriteLine("Enter Ramsey Type: 'A' -> Quick Full Symmetrical or 'B' -> Node Identification");
+        Console.WriteLine("Example 1: A,4,4,17,Y");
+        Console.WriteLine("Example 2: A,5,5,41,Y");
+        Console.WriteLine("Example 3: B,3,4,8,Y,2");
+        Console.WriteLine("Example 4: C,3,4,8,Y,3");
+        Console.WriteLine("Example 5: C,3,5,12,Y,4");
+        Console.WriteLine("");
+
+        Console.WriteLine("Enter Ramsey Type: 'A' -> Quick Full Symmetrical, 'B' -> Node Identification, 'C' - R(3,x) Type 1");
         var ramseyGraphType = Console.ReadLine()?.ToUpperInvariant();
-        if (!new string[] { "A", "B" }.Contains(ramseyGraphType))
+        if (!new string[] { "A", "B", "C" }.Contains(ramseyGraphType))
         {
             Console.WriteLine("Invalid Response");
             return;
@@ -47,30 +54,42 @@ class AdamProgram
             return;
         }
 
-        var ramseyConfig = new RamseyConfig(nodeCount, maxCliqueOn, maxCliqueOff, findAllSolutions ?? false);
+        int? minEdgeCount = null;
+
+        if (new string[] { "B", "C" }.Contains(ramseyGraphType))
+        {
+            Console.WriteLine("Enter minimum 'On' edge count per node");
+            var minEdgeCountString = Console.ReadLine();
+
+            if (!int.TryParse(minEdgeCountString, out var minEdgeCountOut))
+            {
+                Console.WriteLine("Invalid Response");
+                return;
+            }
+
+            minEdgeCount = minEdgeCountOut;
+        }
+
+        var ramseyConfig = new RamseyConfig(nodeCount, maxCliqueOn, maxCliqueOff, findAllSolutions ?? false, minEdgeCount);
 
         IRamseyGraph ramsey;
         if (ramseyGraphType == "A")
         {
             ramsey = new RamseyGraphA2(ramseyConfig);
         }
+        else if (ramseyGraphType == "B")
+        {
+            ramsey = new RamseyGraphB(ramseyConfig);
+        }
+        else if (ramseyGraphType == "C")
+        {
+            ramsey = new RamseyGraphC(ramseyConfig);
+        }
         else
         {
-            Console.WriteLine("Enter minimum 'On' edge count per node");
-            var minEdgeCountString = Console.ReadLine();
-
-            if (!int.TryParse(minEdgeCountString, out var minEdgeCount))
-            {
-                Console.WriteLine("Invalid Response");
-                return;
-            }
-
-            var ramseyB = new RamseyGraphB(ramseyConfig);
-            ramseyB.MinEdgeCount = minEdgeCount;
-
-            ramsey = ramseyB;
-            
+            throw new InvalidOperationException("Invalid graph type");
         }
+
         ramsey.InitializeGraph();
 
         var description = $"R({ramseyConfig.MaxCliqueOn},{ramseyConfig.MaxCliqueOff}). Iterations: {ramsey.Iterations}. Node Count: {ramseyConfig.NodeCount}";

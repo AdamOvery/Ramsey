@@ -7,12 +7,16 @@
         public int MaxCliqueOff { get; set; }
         public bool FindAllSolutions { get; set; }
 
-        public RamseyConfig(int nodeCount, int maxCliqueOn, int maxCliqueOff, bool findAllSolutions)
+        // This is the number of edges that each node has.
+        public int? NodeEdgeCount { get; set; }
+
+        public RamseyConfig(int nodeCount, int maxCliqueOn, int maxCliqueOff, bool findAllSolutions, int? nodeEdgeCount = null)
         {
             NodeCount = nodeCount;
             MaxCliqueOn = maxCliqueOn;
             MaxCliqueOff = maxCliqueOff;
             FindAllSolutions = findAllSolutions;
+            NodeEdgeCount = nodeEdgeCount;
         }
     }
 }
