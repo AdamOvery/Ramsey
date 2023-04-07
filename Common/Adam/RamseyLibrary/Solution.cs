@@ -1,10 +1,12 @@
-﻿namespace Ramsey.Adam.RamseyLibrary
+﻿using Pascal;
+
+namespace Ramsey.Adam.RamseyLibrary
 {
     public class Solution
     {
-        public int[] EdgeLinks { get; }
-
+        public int[]? EdgeLinks { get; }
         public bool[,] Edges { get; }
+        public string? G6Code { get; }
 
         public Solution(int[] edgeLinks, bool[,] edges)
         {
@@ -12,11 +14,18 @@
             Edges = edges.Clone() as bool[,] ?? new bool[0, 0];
         }
 
+        public Solution(MatrixGraphAdam graph)
+        {
+            Edges = graph.edges;
+            G6Code = G6.fromGraph(graph);
+        }
+
         public string EdgeLinkDescription
         {
             get
             {
-                return string.Join(",", EdgeLinks);
+                var result = EdgeLinks is not null ? string.Join(",", EdgeLinks) : string.Empty;
+                return result;
             }
         }
 

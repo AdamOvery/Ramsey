@@ -52,7 +52,7 @@ class AdamProgram
         IRamseyGraph ramsey;
         if (ramseyGraphType == "A")
         {
-            ramsey = new RamseyGraphA(ramseyConfig);
+            ramsey = new RamseyGraphA2(ramseyConfig);
         }
         else
         {
@@ -80,7 +80,7 @@ class AdamProgram
         {
             foreach (var solution in ramsey.Solutions)
             {
-                Console.WriteLine($"{description}. Solution = {solution.EdgeDescription}. Found in {timeTaken}");
+                Console.WriteLine($"{description}. G6={solution.G6Code}. Solution = {Environment.NewLine}{solution.EdgeDescription}. Found in {timeTaken}");
             }
         }
         else
