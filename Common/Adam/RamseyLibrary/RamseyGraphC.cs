@@ -1,6 +1,4 @@
-﻿using Pascal;
-
-namespace Ramsey.Adam.RamseyLibrary
+﻿namespace Ramsey.Adam.RamseyLibrary
 {
     public class RamseyGraphC : IRamseyGraph
     {
@@ -88,73 +86,13 @@ namespace Ramsey.Adam.RamseyLibrary
                 //var adamTest1 = G6.fromGraph(matrixGraph);
                 //adamtest2++;
 
-                var crossLoopIndex1 = -2;
-                var crossLoopIndex2 = 999;
-                var isFirst = true;
-                while (crossLoopIndex1 < Config.NodeCount)
+                if (TryAllCrossLoops(matrixGraph, edgeLinks, edgeLinkCount, edgeSymmetryCount))
                 {
-                    //adamTest1 = G6.fromGraph(matrixGraph);
-                    //adamtest2++;
-
-                    //NB: Right now, it's only cross looping with up to 2 edges. I need to make this generic
-                    var secondNodeIndex = (crossLoopIndex1 + 1) % Config.NodeCount;
-
-                    if (crossLoopIndex1 >= 0)
+                    if (!Config.FindAllSolutions)
                     {
-                        var node2Index = (crossLoopIndex1 + (edgeLinks[crossLoopIndex2] * 2)) % Config.NodeCount;
-                        var node3Index = (node2Index + 1) % Config.NodeCount;
-
-                        matrixGraph.SetEdgeValue(crossLoopIndex1, node2Index, false);
-                        matrixGraph.SetEdgeValue(secondNodeIndex, node3Index, false);
-                        matrixGraph.SetEdgeValue(crossLoopIndex1, node3Index, true);
-                        matrixGraph.SetEdgeValue(secondNodeIndex, node2Index, true);
-
-                        //adamTest1 = G6.fromGraph(matrixGraph);
-                        //adamtest2++;
-                    }
-
-                    if (!IdentifyInvalidCliques(matrixGraph.edges))
-                    {
-                        IsSuccess = true;
                         TimeTaken = DateTime.UtcNow - startTime;
-                        Solutions.Add(new Solution(matrixGraph));
-
-                        if (!Config.FindAllSolutions)
-                        {
-                            return;
-                        }
+                        return;
                     }
-
-                    // Reset each one (As long as it's not the first one)
-                    if (crossLoopIndex1 >= 0)
-                    {
-                        if (isFirst)
-                        {
-                            isFirst = false;
-                        }
-                        else
-                        {
-                            var node2Index = (crossLoopIndex1 + edgeLinks[crossLoopIndex2] * 2) % Config.NodeCount;
-                            var node3Index = (node2Index + 1) % Config.NodeCount;
-                            matrixGraph.SetEdgeValue(crossLoopIndex1, node2Index, true);
-                            matrixGraph.SetEdgeValue(secondNodeIndex, node3Index, true);
-                            matrixGraph.SetEdgeValue(crossLoopIndex1, node3Index, false);
-                            matrixGraph.SetEdgeValue(secondNodeIndex, node2Index, false);
-
-                            //adamTest1 = G6.fromGraph(matrixGraph);
-                            //adamtest2++;
-                        }
-                    }
-
-                    if (crossLoopIndex2 >= edgeLinkCount - 1)
-                    {
-                        crossLoopIndex1 += 2;
-                        crossLoopIndex2 = 0;
-                    }
-                    else
-                    {
-                        crossLoopIndex2++;
-                    }                    
                 }
 
                 // Try the next edgeLink setting
@@ -184,6 +122,82 @@ namespace Ramsey.Adam.RamseyLibrary
                     }
                 }
             }
+        }
+
+        private bool TryAllCrossLoops(MatrixGraphAdam matrixGraph, int[] edgeLinks, int edgeLinkCount, int edgeSymmetryCount)
+        {
+            var crossLoop = new CrossLoop();
+            var maxStackDepth = edgeLinkCount; // Not really sure how deep to go? In the first two examples, it worked with edgeLinkCount;
+            var crossLoopStack = new Stack<CrossLoop>();
+            while (true)
+            {
+                //Iterations++;
+
+                if (!IdentifyInvalidCliques(matrixGraph.edges))
+                {
+                    IsSuccess = true;
+                    Solutions.Add(new Solution(matrixGraph));
+
+                    if (!Config.FindAllSolutions)
+                    {
+                        return true;
+                    }
+                }
+
+                // If the stack ain't full, push to it
+                if (crossLoopStack.Count < maxStackDepth)
+                {
+                    crossLoopStack.Push(crossLoop);
+                }
+                else
+                {
+                    // Else recross the loop to revert to the original loop
+                    CrossTheLoop(matrixGraph, crossLoop, edgeLinks);
+                }
+
+                var isIncremented = false;
+                while (!isIncremented)
+                {
+                    if (crossLoop.EdgeLinkIndex < edgeLinkCount - 1)
+                    {
+                        crossLoop.EdgeLinkIndex++;
+                        isIncremented = true;
+                    }
+                    else if (crossLoop.EdgeIndex < edgeSymmetryCount - 1)
+                    {
+                        crossLoop.EdgeIndex++;
+                        crossLoop.EdgeLinkIndex = 0;
+                        isIncremented = true;
+                    }
+                    else
+                    {
+                        crossLoop = crossLoopStack.Pop();
+
+                        // Once we've popped the last item, there's no need to continue because the first push is totally symmetrical
+                        if (crossLoopStack.Count == 0)
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                CrossTheLoop(matrixGraph, crossLoop, edgeLinks);
+            }
+        }
+
+        private void CrossTheLoop(IGraph matrixGraph, CrossLoop crossLoop, int[] edgeLinks)
+        {
+            var nodeFromIndex1 = (crossLoop.EdgeIndex * 2) % Config.NodeCount;
+            var nodeFromIndex2 = (nodeFromIndex1 + 1) % Config.NodeCount;
+
+            var nodeToIndex1 = (nodeFromIndex1 + (edgeLinks[crossLoop.EdgeLinkIndex] * 2)) % Config.NodeCount;
+            var nodeToIndex2 = (nodeToIndex1 + 1) % Config.NodeCount;
+
+            // Cross the loop
+            matrixGraph.SetEdgeValue(nodeFromIndex1, nodeToIndex1, false);
+            matrixGraph.SetEdgeValue(nodeFromIndex2, nodeToIndex2, false);
+            matrixGraph.SetEdgeValue(nodeFromIndex1, nodeToIndex2, true);
+            matrixGraph.SetEdgeValue(nodeFromIndex2, nodeToIndex1, true);
         }
 
         public bool IdentifyInvalidCliques(bool[,] edges)

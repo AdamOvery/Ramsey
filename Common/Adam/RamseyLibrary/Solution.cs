@@ -16,7 +16,7 @@ namespace Ramsey.Adam.RamseyLibrary
 
         public Solution(MatrixGraphAdam graph)
         {
-            Edges = graph.edges;
+            Edges = graph.edges.Clone() as bool[,] ?? new bool[0, 0];
             G6Code = G6.fromGraph(graph);
         }
 
