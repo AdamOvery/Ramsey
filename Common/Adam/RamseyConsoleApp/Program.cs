@@ -93,7 +93,7 @@ class AdamProgram
         ramsey.InitializeGraph();
 
         var description = $"R({ramseyConfig.MaxCliqueOn},{ramseyConfig.MaxCliqueOff}). Iterations: {ramsey.Iterations}. Node Count: {ramseyConfig.NodeCount}";
-        var timeTaken = string.Format("{0:0.00}s", ramsey.TimeTaken.TotalMilliseconds / 1000);
+        var timeTaken = string.Format("{0:0.000}s", ramsey.TimeTaken.TotalMilliseconds / 1000);
 
         if (ramsey.IsSuccess)
         {
