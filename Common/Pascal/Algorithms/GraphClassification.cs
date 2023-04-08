@@ -90,15 +90,10 @@ public class GraphClassification
 
     private static string GetSignaturesII(ISubGraph subgraph, bool withComments = false)
     {
-        var a = new int[5, 5];
-        var b = new int[5, 5];
-        Console.WriteLine(a.GetHashCode());
-        Console.WriteLine(b.GetHashCode());
-
         // var signatures = new List<string>();
         var nodeCount = subgraph.nodes.Count;
-        object?[,] previousSignatures = new object[nodeCount, nodeCount];
-        object?[,] signatures = new object[nodeCount, nodeCount];
+        object?[] previousSignatures = new object[nodeCount];
+        object?[] signatures = new object[nodeCount];
         for (int pass = 0; pass < nodeCount; pass++)
         {
             for (var i1 = 0; i1 < nodeCount; i1++)
@@ -106,21 +101,14 @@ public class GraphClassification
                 var n1 = subgraph.nodes[i1];
                 if (pass == 0)
                 {
-                    for (var i2 = 0; i2 < nodeCount; i2++)
-                    {
-
-                        signatures[i1, i2] = (i1 == i2) ? null : n1.adjacentNodes.Count;
-                    }
+                    signatures[i1] = n1.adjacentNodes.Count;
                 }
                 else
                 {
-                    for (var i2 = 0; i2 < nodeCount; i2++)
+                    signatures[i1] = n1.adjacentNodes.Select(n =>
                     {
-                        signatures[i1, i2] = n1.adjacentNodes.Select(n =>
-                        {
-                            return previousSignatures[n.id, i2];
-                        }).ToArray();
-                    }
+                        return previousSignatures[n.id];
+                    }).ToArray();
                 }
             }
             previousSignatures = signatures;
