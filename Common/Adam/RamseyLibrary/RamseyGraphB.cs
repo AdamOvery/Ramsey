@@ -18,10 +18,6 @@
         public int Iterations { get; private set; }
         public IList<Solution> Solutions { get; private set; }
 
-        // Ramsey Graph B specifics
-        public int MinEdgeCount { get; set; }
-        public int MaxEdgeCount { get; private set; }
-
         private GraphEdges CreateNewGraphEdges()
         {
             var edges = new bool[Config.NodeCount, Config.NodeCount];
@@ -43,9 +39,12 @@
 
             var graphEdges = CreateNewGraphEdges();
 
-            MaxEdgeCount = MinEdgeCount + 1;
+            if (Config.NodeEdgeCount is null)
+            {
+                throw new InvalidOperationException("NodeEdgeCount is mandatory for RamseyGraphB");
+            }
 
-            var edgeLinkCount = (MinEdgeCount % 2 == 0) ? MinEdgeCount / 2 : MaxEdgeCount / 2;
+            var edgeLinkCount = (int)((Config.NodeEdgeCount % 2 == 0) ? Config.NodeEdgeCount / 2 : (Config.NodeEdgeCount + 1) / 2);
             var halfNodeCount = (Config.NodeCount % 2 == 0) ? (Config.NodeCount - 2) / 2 : (Config.NodeCount - 1) / 2;
 
             // The edgeLinks are the links to "other" nodes that every node will have.
@@ -84,7 +83,7 @@
             var graphQueueUp = new Queue<GraphEdges>();
             var graphQueueDown = new Queue<GraphEdges>();
             var distances = new int[Config.NodeCount, Config.NodeCount];
-            graphEdges.IsDown = (MinEdgeCount % 2 != 0);
+            graphEdges.IsDown = (Config.NodeEdgeCount % 2 != 0);
 
             do
             {
@@ -120,7 +119,7 @@
                     nodeIds[nodeId].Add(nodeIndex);
 
                     // Add to min and max dictionaries
-                    var sizeIds = (graphEdges.NodeLists[nodeIndex].Count == MinEdgeCount) ? minIds : maxIds;
+                    var sizeIds = (graphEdges.NodeLists[nodeIndex].Count == Config.NodeEdgeCount) ? minIds : maxIds;
 
                     if (!sizeIds.ContainsKey(nodeId))
                     {
