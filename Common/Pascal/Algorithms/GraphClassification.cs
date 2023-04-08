@@ -90,17 +90,46 @@ public class GraphClassification
 
     private static string GetSignaturesII(ISubGraph subgraph, bool withComments = false)
     {
-        var signatures = new List<string>();
-        
-        foreach (var n1 in subgraph.nodes)
+        var a = new int[5, 5];
+        var b = new int[5, 5];
+        Console.WriteLine(a.GetHashCode());
+        Console.WriteLine(b.GetHashCode());
+
+        // var signatures = new List<string>();
+        var nodeCount = subgraph.nodes.Count;
+        object?[,] previousSignatures = new object[nodeCount, nodeCount];
+        object?[,] signatures = new object[nodeCount, nodeCount];
+        for (int pass = 0; pass < nodeCount; pass++)
         {
-            signatures.Add(GetSignature(subgraph.graph, n1, withComments));
+            for (var i1 = 0; i1 < nodeCount; i1++)
+            {
+                var n1 = subgraph.nodes[i1];
+                if (pass == 0)
+                {
+                    for (var i2 = 0; i2 < nodeCount; i2++)
+                    {
+
+                        signatures[i1, i2] = (i1 == i2) ? null : n1.adjacentNodes.Count;
+                    }
+                }
+                else
+                {
+                    for (var i2 = 0; i2 < nodeCount; i2++)
+                    {
+                        signatures[i1, i2] = n1.adjacentNodes.Select(n =>
+                        {
+                            return previousSignatures[n.id, i2];
+                        }).ToArray();
+                    }
+                }
+            }
+            previousSignatures = signatures;
         }
-        string result;
-        if (!withComments) signatures.Sort();
+        string result = "";
+        //if (!withComments) signatures.Sort();
 
         var delim = withComments ? ",\n" : ",";
-        result = "[" + String.Join(delim, signatures) + "]";
+        //result = "[" + String.Join(delim, signatures) + "]";
         return result;
     }
 
@@ -109,6 +138,8 @@ public class GraphClassification
         var subgraph = (G6.parse(g6).AsSubGraph())!;
         var actualSignature = GetSignatures(subgraph, withComments);
         TestEngine.AssertEquals($"Graph {g6} signature", () => actualSignature, expectedSignature);
+        var newSignature = GetSignaturesII(subgraph, withComments);
+        TestEngine.AssertEquals($"Graph {g6} new signature", () => newSignature, expectedSignature);
     }
 
     public static void Tests()
