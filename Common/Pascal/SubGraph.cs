@@ -4,11 +4,11 @@ public class SubGraph : ISubGraph
 {
     private readonly IGraph _graph;
 
-    ISet<INode> _nodes;
+    IList<INode> _nodes;
     // Node[] _graphNodes ;
     public int order { get; private set; }
 
-    public ISet<INode> nodes
+    public IList<INode> nodes
     {
         get
         {
@@ -58,7 +58,7 @@ public class SubGraph : ISubGraph
     {
         this._graph = graph;
         if (nodes == null) nodes = Enumerable.Range(0, graph.order).Select(id => this.CreateNode(id));
-        this._nodes = nodes.ToHashSet();
+        this._nodes = nodes.ToList();
         this.order = _nodes.Count;
         this.Label = "";
     }

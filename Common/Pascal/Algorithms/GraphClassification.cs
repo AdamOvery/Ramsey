@@ -88,6 +88,22 @@ public class GraphClassification
         return result;
     }
 
+    private static string GetSignaturesII(ISubGraph subgraph, bool withComments = false)
+    {
+        var signatures = new List<string>();
+        
+        foreach (var n1 in subgraph.nodes)
+        {
+            signatures.Add(GetSignature(subgraph.graph, n1, withComments));
+        }
+        string result;
+        if (!withComments) signatures.Sort();
+
+        var delim = withComments ? ",\n" : ",";
+        result = "[" + String.Join(delim, signatures) + "]";
+        return result;
+    }
+
     static void TestSignature(string g6, string expectedSignature, bool withComments = false)
     {
         var subgraph = (G6.parse(g6).AsSubGraph())!;
