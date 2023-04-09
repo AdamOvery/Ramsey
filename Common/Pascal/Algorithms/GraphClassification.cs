@@ -5,6 +5,21 @@ namespace Pascal;
 
 public class GraphClassification
 {
+    public static void Tests()
+    {
+        // TestCliqueOf5andCliqueOf3();
+        // TestRandomGraph();
+        //TestTwoInFour();
+        //TestTriangleWithLeg();
+        // TestSmallGraphOf3();
+        TestSmallGraphOf4();
+        // TestSmallGraphOf5();
+        // TestBiggerGraphOf5();
+        // TestLargerGraphOf12();
+        // TestAdamCrazyGraph();
+
+    }
+
     abstract record class Signature : IComparable<Signature>
     {
         public int CompareTo(Signature? other)
@@ -181,20 +196,6 @@ E = [C,C]
         return newSignature;
     }
 
-    public static void Tests()
-    {
-        // TestCliqueOf5andCliqueOf3();
-        // TestRandomGraph();
-        //TestTwoInFour();
-        //TestTriangleWithLeg();
-        // TestSmallGraphOf3();
-        //TestSmallGraphOf4();
-        TestSmallGraphOf5II();
-        TestBiggerGraphOf5();
-        TestLargerGraphOf12();
-        TestAdamCrazyGraph();
-    }
-
     public static void TestTwoInFour()
     {
         TestSignature("CC", @"[/*N0:*/[/*N3:*/[/*N0:*/0]],
@@ -205,17 +206,13 @@ E = [C,C]
 
     public static void TestSmallGraphOf4()
     {
-        TestSignature("Cm", "[[[[-2,0],0],[[-2,0],0]],[[[-2,0],0],[[-2,0],0]],[[[-2,0],0],[[-2,0],0]],[[0]],[[0]]]", true);
+        TestSignature("Cm", "[[[[[1,2],1],[[1,2],1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[0,1],0],[[0,1],0],[0]]]", false);
+        TestSignature("Cy", "[[[[[1,2],1],[[1,2],1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[0,1],0],[[0,1],0],[0]]]", false);
+
     }
+
 
     public static void TestSmallGraphOf5()
-    {
-        TestSignature("DKW", "[[[[0,1],0],[[0,1],0]],[[[0,1],0],[[0,1],0]],[[[0,1],0],[[0,1],0]],[[0]],[[0]]]");
-        TestSignature("DeG", "[[[[0,1],0],[[0,1],0]],[[[0,1],0],[[0,1],0]],[[[0,1],0],[[0,1],0]],[[0]],[[0]]]");
-        TestSignature("DKc", "[[[[0,1],0],[[0,1],0]],[[[0,1],0],[[0,1],0]],[[[0,1],0],[[0,1],0]],[[0]],[[0]]]");
-    }
-
-    public static void TestSmallGraphOf5II()
     {
         string sig5 = GetSignature("DKW");
         TestSignature("DKW", sig5);
