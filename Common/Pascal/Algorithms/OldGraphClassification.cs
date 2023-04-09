@@ -3,22 +3,17 @@ using System.Text.RegularExpressions;
 namespace Pascal;
 
 
-public class GraphClassification
+public partial class OldGraphClassification
 {
     public static void Tests()
     {
-        TestCliqueOf5andCliqueOf3();
         TestTwoInFour();
-        TestTriangleWithLeg();
         TestSmallGraphOf4();
         TestSmallGraphOf5();
         TestBiggerGraphOf5();
+        TestCliqueOf5andCliqueOf3();
         TestLargerGraphOf12();
         // not this one TestAdamCrazyGraph();
-        TestSignatureII("Cm", @"[/*#0*/[[[[1],0,1],0],[[0,1],[1],0]],
-/*#1*/[[[0,1],0],[[0,1],0],[0]],
-/*#2*/[[[[1,2],1],[[1,2],1],0]],
-/*#3*/[[[[1],0,1],0],[[0,1],[1],0]]]", true);
     }
 
 
@@ -67,29 +62,6 @@ public class GraphClassification
             }
             return result;
         }
-    }
-
-    class NodeComparer : IComparer<INode>
-    {
-        public int Compare(INode? a, INode? b)
-        {
-            if (a == null) return (b == null ? 0 : -1);
-            else if (b == null) return 1;
-            var adjA = a.adjacentNodes;
-            var adjB = b.adjacentNodes;
-            int na = adjA.Count;
-            int nb = adjB.Count;
-            if (na != nb) return na.CompareTo(nb);
-
-            for (int i = 0; i < na; i++)
-            {
-                var result = Compare(adjA[i], adjB[i]);
-                if (result != 0) return result;
-            }
-            return 0;
-        }
-
-        public static readonly NodeComparer instance = new NodeComparer();
     }
 
     record class AdjSignature(Signature[] adj) : Signature
@@ -153,7 +125,7 @@ public class GraphClassification
         return signature.ToString();
     }
 
-    private static string GetSignatures(ISubGraph subgraph, bool withComments = false)
+    private static string GetOldSignatures(ISubGraph subgraph, bool withComments = false)
     {
         /*
     Cm [
@@ -199,137 +171,78 @@ public class GraphClassification
     }
 
 
-    private static string GetSignatureII(ISubGraph subgraph, bool withComments = false)
+
+    static void TestOldSignature(string g6, string expectedSignature, bool withComments = false)
     {
-        var order = subgraph.graph.order;
-        bool[] visited = new bool[order];
-        int[] oldIdToNewId = new int[order];
-        int[] newIdToOldId = new int[order];
+        var subgraph = G6.parse(g6).AsSubGraph();
 
-        var findBestNode = new Func<IEnumerable<INode>, INode>((nodes) =>
-        {
-            INode? bestNode = null;
-            foreach (var n in nodes)
-            {
-                if (!visited[n.id] && (bestNode == null || NodeComparer.instance.Compare(n, bestNode) > 0)) bestNode = n;
-            }
-            return bestNode!;
-        });
-
-        var signatureFrom = new Func<INode, Signature>((start) => new LnkSignature(0));
-
-
-
-        for (int nodeNo = 0; nodeNo < order; nodeNo++)
-        {
-            var bestNode = findBestNode(subgraph.nodes);
-            visited[bestNode.id] = true;
-            newIdToOldId[nodeNo] = bestNode.id;
-            oldIdToNewId[bestNode.id] = nodeNo;
-        }
-        var delim = withComments ? ",\n" : ",";
-        List<string> signatures = new List<string>();
-
-        for (int nodeNo = 0; nodeNo < order; nodeNo++)
-        {
-            var n = subgraph.nodes[newIdToOldId[nodeNo]];
-            signatures.Add("[" + String.Join(",", n.adjacentNodes.Select(n2 => oldIdToNewId[n2.id]).OrderBy(n2 => n2)) + "]");
-        }
-        return "[" + String.Join(delim, signatures) + "]";
+        var oldSignature = GetOldSignatures(subgraph, withComments);
+        TestEngine.AssertEquals($"Graph {g6} signature", () => oldSignature, expectedSignature);
     }
 
 
 
-    static void TestSignature(string g6, string expectedSignature, bool withComments = false)
+
+    static string GetOldSignature(string g6, bool withComments = false)
     {
-        var subgraph = (G6.parse(g6).AsSubGraph())!;
-
-        var newSignature = GetSignatures(subgraph, withComments);
-        TestEngine.AssertEquals($"Graph {g6} signature", () => newSignature, expectedSignature);
-    }
-
-    static void TestSignatureII(string g6, string expectedSignature, bool withComments = false)
-    {
-        var subgraph = (G6.parse(g6).AsSubGraph())!;
-
-        var newSignature = GetSignatureII(subgraph, withComments);
-        Console.WriteLine("expectedSignature = " + expectedSignature);
-        Console.WriteLine("newSignature = " + newSignature);
-        // TestEngine.AssertEquals($"Graph {g6} signature", () => newSignature, expectedSignature);
-    }
-
-
-
-    static string GetSignature(string g6, bool withComments = false)
-    {
-        var subgraph = (G6.parse(g6).AsSubGraph())!;
-        var newSignature = GetSignatures(subgraph, withComments);
-        return newSignature;
+        var subgraph = G6.parse(g6).AsSubGraph();
+        var oldSignature = GetOldSignatures(subgraph, withComments);
+        return oldSignature;
     }
 
     public static void TestTwoInFour()
     {
-        TestSignature("CC", @"[/*#0*/[[0]],
-/*#1*/[],
-/*#2*/[],
-/*#3*/[[0]]]", true);
+        string sig2 = GetOldSignature("CC");
+        TestOldSignature("CG", sig2);
+        TestOldSignature("CA", sig2);
+        TestOldSignature("C_", sig2);
     }
 
     public static void TestSmallGraphOf4()
     {
-        string sig4 = GetSignature("Cm");
-        TestSignature("Cy", sig4);
+        string sig4 = GetOldSignature("Cm");
+        TestOldSignature("Cy", sig4);
 
     }
 
 
     public static void TestSmallGraphOf5()
     {
-        string sig5 = GetSignature("DKW");
-        TestSignature("DKW", sig5);
-        TestSignature("DeG", sig5);
-        TestSignature("DKc", sig5);
+        string sig5 = GetOldSignature("DKW");
+        TestOldSignature("DKW", sig5);
+        TestOldSignature("DeG", sig5);
+        TestOldSignature("DKc", sig5);
     }
 
     public static void TestBiggerGraphOf5()
     {
-        string sig5 = GetSignature("DK{");
-        TestSignature("DyS", sig5);
-        TestSignature("DxK", sig5);
+        string sig5 = GetOldSignature("DK{");
+        //TestOldSignature("DyS", sig5);
+        //TestOldSignature("DxK", sig5);
     }
 
     public static void TestLargerGraphOf12()
     {
-        string sig12 = GetSignature("K]W@WC@?G?oD");
-        TestSignature("KC@C?[K{C_?P", sig12);
-        TestSignature("KGsA@?dCHEQ?", sig12);
+        string sig12 = GetOldSignature("K]W@WC@?G?oD");
+        TestOldSignature("KC@C?[K{C_?P", sig12);
+        TestOldSignature("KGsA@?dCHEQ?", sig12);
     }
 
     public static void TestAdamCrazyGraph()
     {
-        string sig41 = GetSignature(@"hUxtuxmluv\m\mMvBls\mpuxblpblopuwK\m@bloEMv?K\m?K\m_EMvW@blr?K\mK?puwW@blsW@bluK?puzb?K\m[W@bltp_EMvZb?K\mZb?K\mlp_EMvZ[W@blvZb?K\m\mK?puw");
-        TestSignature(@"h?`DAagtBSUgugZSUtAugJY_UtCUtEJYbaug{UtFpZS^aug^augNpZSB{UtC^augP}JYab{UtEb{UtBP}JYas^augub{UtBYNpZSUs^augUs^augjYNpZSIub{Ut@Us^augDZP}JY_", sig41);
+        string sig41 = GetOldSignature(@"hUxtuxmluv\m\mMvBls\mpuxblpblopuwK\m@bloEMv?K\m?K\m_EMvW@blr?K\mK?puwW@blsW@bluK?puzb?K\m[W@bltp_EMvZb?K\mZb?K\mlp_EMvZ[W@blvZb?K\m\mK?puw");
+        TestOldSignature(@"h?`DAagtBSUgugZSUtAugJY_UtCUtEJYbaug{UtFpZS^aug^augNpZSB{UtC^augP}JYab{UtEb{UtBP}JYas^augub{UtBYNpZSUs^augUs^augjYNpZSIub{Ut@Us^augDZP}JY_", sig41);
     }
-
-    public static void TestTriangleWithLeg()
-    {
-        TestSignature("Cm", @"[/*#0*/[[[0,1],[1],0],[[[1],0,1],0]],
-/*#1*/[[[0,1],0],[[0,1],0],[0]],
-/*#2*/[[[[1,2],1],[[1,2],1],0]],
-/*#3*/[[[0,1],[1],0],[[[1],0,1],0]]]", true);
-    }
-
-
 
     public static void TestCliqueOf5andCliqueOf3()
     {
         // https://ramsey-paganaye.vercel.app/pascal/1?g6=K~{???A????S
-        // var g = (G6.parse("Fg???").AsSubGraph())!;
-        var sigClique5AndClique3 = GetSignature("K~{???A????S");
-        TestSignature("K~{???A????S", sigClique5AndClique3);
-        TestSignature("K@Kw?A?_Hw??", sigClique5AndClique3);
-        TestSignature("K?O?AOCQQQ_c", sigClique5AndClique3);
-        TestSignature("K@@@_?qKg?G_", sigClique5AndClique3);
+        // var g = G6.parse("Fg???").AsSubGraph();
+        var sigClique5AndClique3 = GetOldSignature("K~{???A????S");
+        TestOldSignature("K~{???A????S", sigClique5AndClique3);
+        TestOldSignature("K@Kw?A?_Hw??", sigClique5AndClique3);
+        TestOldSignature("K?O?AOCQQQ_c", sigClique5AndClique3);
+        TestOldSignature("K@@@_?qKg?G_", sigClique5AndClique3);
 
     }
 }

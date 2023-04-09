@@ -11,13 +11,16 @@ public class PascalProgram
         // CutVerticesAlgorithm.Tests();
         // CutVerticesAlgorithm.Tests();
         // DFSTraversal.Tests();
-         GraphClassification.Tests();
+        // OldGraphClassification.Tests();
+        // NewGraphClassification.Tests();
         // GraphGrayCode.Tests();
         // IsCliqueAlgorithm.Tests();
         // IsConnectedAlgorithm.Tests();
         // LongestCycleSearch.Tests();
         // Ramsey3_4.Tests();
         // UITest.Tests();        
+        SortedGraph.Tests();
     }
+
 
 }
