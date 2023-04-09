@@ -36,5 +36,15 @@
             Array.Clear(edges);
             GraphChanged.Invoke(this);
         }
+
+        public static IGraphFactory factory = new MatrixGraphFactory();
+
+        private class MatrixGraphFactory : IGraphFactory
+        {
+            public IGraph newGraph(int order)
+            {
+                return new MatrixGraphAdam(order);
+            }
+        }
     }
 }

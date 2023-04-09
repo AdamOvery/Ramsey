@@ -1,4 +1,5 @@
-﻿using Ramsey.Adam.RamseyLibrary;
+﻿using Pascal;
+using Ramsey.Adam.RamseyLibrary;
 
 class AdamProgram
 {
@@ -10,6 +11,11 @@ class AdamProgram
         Console.WriteLine("Example 4: C,3,4,8,Y,3");
         Console.WriteLine("Example 5: C,3,5,12,Y,4");
         Console.WriteLine("");
+
+        // Test Code only
+        //var graphG6 = "Ls`?XGRQR@B`Kc";
+        //MatrixGraphAdam testGraph = (MatrixGraphAdam)G6.parse(graphG6, MatrixGraphAdam.factory);
+        //var nodeLoops = NodeLoopUtil.FindAllNodeLoops(testGraph.edges);
 
         Console.WriteLine("Enter Ramsey Type: 'A' -> Quick Full Symmetrical, 'B' -> Node Identification, 'C' - R(3,x) Type 1");
         var ramseyGraphType = Console.ReadLine()?.ToUpperInvariant();
