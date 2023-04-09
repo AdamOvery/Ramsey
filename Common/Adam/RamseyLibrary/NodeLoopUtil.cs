@@ -8,7 +8,7 @@
             var nodeCount = edges.GetLength(0);
 
             // build up node lists (these are the same as edges but each node has an list of "on" edges rather than a straight array)
-            var nodeLists = new List<int>[edges.Length];
+            var nodeLists = new List<int>[edges.GetLength(0)];
             for (var node1index = 0; node1index < nodeCount; node1index++)
             {
                 nodeLists[node1index] = new List<int>();
@@ -50,6 +50,31 @@
             }
 
             return nodeLoops.Values.ToList();
+        }
+
+        public static List<RamseyEdge> FindAllRamseyEdges(List<NodeLoop> nodeLoops, int nodeCount)
+        {
+            var ramseyEdges = new Dictionary<int, RamseyEdge>();
+
+            foreach (var nodeLoop in nodeLoops)
+            {
+                for (var loopIndex = 0; loopIndex < 4; loopIndex++)
+                {
+                    var ramseyEdge = new RamseyEdge(nodeLoop.Nodes[loopIndex], nodeLoop.Nodes[(loopIndex + 1) % 4], nodeCount);
+
+                    if (!ramseyEdges.ContainsKey(ramseyEdge.Id))
+                    {
+                        ramseyEdges.Add(ramseyEdge.Id, ramseyEdge);
+                    }
+                    else
+                    {
+                        ramseyEdge = ramseyEdges[ramseyEdge.Id];
+                        ramseyEdge.Count++;
+                    }
+                }
+            }
+
+            return ramseyEdges.Values.ToList();
         }
 
         private static int GetProperModulus(int value, int modulus)

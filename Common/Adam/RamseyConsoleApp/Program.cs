@@ -13,9 +13,25 @@ class AdamProgram
         Console.WriteLine("");
 
         // Test Code only
-        //var graphG6 = "Ls`?XGRQR@B`Kc";
+        ////var graphG6 = "GsOiho";
+        ////var graphG6 = "Ls`?XGRQR@B`Kc";
+        ////var graphG6 = "UsaCB@AQAGI?HGIABGOKJCcoa[``o_U[?LcGD[O?";
+        //var graphG6 = "UsaCAHAQA_K?GcC`@`XHaDH_Xa@QQOKwGJKOK[G?";
         //MatrixGraphAdam testGraph = (MatrixGraphAdam)G6.parse(graphG6, MatrixGraphAdam.factory);
         //var nodeLoops = NodeLoopUtil.FindAllNodeLoops(testGraph.edges);
+        //var ramseyEdges = NodeLoopUtil.FindAllRamseyEdges(nodeLoops, testGraph.edges.GetLength(0));
+        //var edgeCounts = new Dictionary<int, int>();
+        //foreach (var edge in ramseyEdges)
+        //{
+        //    if (!edgeCounts.ContainsKey(edge.Count))
+        //    {
+        //        edgeCounts.Add(edge.Count, 1);
+        //    }
+        //    else
+        //    {
+        //        edgeCounts[edge.Count]++;
+        //    }
+        //}
 
         Console.WriteLine("Enter Ramsey Type: 'A' -> Quick Full Symmetrical, 'B' -> Node Identification, 'C' - R(3,x) Type 1");
         var ramseyGraphType = Console.ReadLine()?.ToUpperInvariant();
