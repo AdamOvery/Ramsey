@@ -5,7 +5,6 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        // HOSTNAME=
         var vars = Environment.GetEnvironmentVariables();
 
         if (Environment.GetEnvironmentVariable("USER") == "pascal")

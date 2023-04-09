@@ -46,7 +46,7 @@ public static class TestEngine
         || (expected != null && expected.Equals(actual))) Console.WriteLine($"[Pass] {testName}: {actual}");
         else
         {
-            var error = $"{testName} expected {expected}, actual {actual}";
+            var error = $"{testName} expected {expected}\nactual {actual}";
             Console.WriteLine($"[Failed] {error}");
             throw new TestFailedException(error);
         }
@@ -70,7 +70,7 @@ public static class TestEngine
         || (expected != null && actual != null && actual.ToString() == expected)) Console.WriteLine($"[Pass] {testName}: {actual}");
         else
         {
-            var error = $"{testName} expected {expected}, actual {actual}";
+            var error = $"{testName} expected {expected}\nactual {actual}";
             Console.WriteLine($"[Failed] {error}");
             throw new TestFailedException(error);
         }
