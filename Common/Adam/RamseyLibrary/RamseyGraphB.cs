@@ -282,7 +282,7 @@
                 {
                     if (graphEdges.Edges[nodeIdFrom, nodeIdTo])
                     {
-                        return new RamseyEdge(nodeIdFrom, nodeIdTo);
+                        return new RamseyEdge(nodeIdFrom, nodeIdTo, graphEdges.Edges.GetLength(0));
                     }
                 }
             }
@@ -303,7 +303,7 @@
                         var distance = distances[nodeIdFrom, nodeIdTo];
                         if (!ramseyEdges.ContainsKey(distance) && (distance > 0)) // Don't add a link to itself!
                         {
-                            ramseyEdges[distance] = new RamseyEdge(nodeIdFrom, nodeIdTo);
+                            ramseyEdges[distance] = new RamseyEdge(nodeIdFrom, nodeIdTo, graphEdges.Edges.GetLength(0));
                         }
                     }
                 }
