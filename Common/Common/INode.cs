@@ -3,7 +3,7 @@
 public interface INode
 {
     int id { get; }
-    ISet<INode> adjacentNodes { get; }
+    IList<INode> adjacentNodes { get; }
 
     String Label { get; set; }
 }

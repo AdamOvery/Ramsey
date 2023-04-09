@@ -14,39 +14,36 @@ public class GraphClassification
         TestSmallGraphOf5();
         TestBiggerGraphOf5();
         TestLargerGraphOf12();
-        // TestAdamCrazyGraph();
-
+        // not this one TestAdamCrazyGraph();
+        TestSignatureII("Cm", @"[/*#0*/[[[[1],0,1],0],[[0,1],[1],0]],
+/*#1*/[[[0,1],0],[[0,1],0],[0]],
+/*#2*/[[[[1,2],1],[[1,2],1],0]],
+/*#3*/[[[[1],0,1],0],[[0,1],[1],0]]]", true);
     }
+
 
     abstract record class Signature : IComparable<Signature>
     {
         public int CompareTo(Signature? other)
         {
-            int result;
+            int result = 0;
             if (this is AdjSignature)
             {
                 if (other is AdjSignature)
                 {
                     var thisArr = ((AdjSignature)this).adj;
                     var otherArr = ((AdjSignature)other!).adj;
-                    int min = Math.Min(thisArr.Length, otherArr.Length);
-                    for (int i = 0; i < min; i++)
-                    {
-                        var thisEntry = thisArr[i];
-                        var otherEntry = otherArr[i];
-                        result = thisEntry.CompareTo(otherEntry);
-                        if (result != 0) return result;
-                    }
-                    int result1 = this.ToString().CompareTo(other?.ToString());
-                    int result2;
-                    if (thisArr.Length > otherArr.Length) result2 = -1;
-                    else if (thisArr.Length < otherArr.Length) result2 = 1;
-                    else result2 = 0;
-                    if (result1 == result2) return result = result1;
+                    if (thisArr.Length > otherArr.Length) result = -1;
+                    else if (thisArr.Length < otherArr.Length) result = 1;
                     else
                     {
-                        Console.WriteLine($"result1: {result1}, result2: {result2}");
-                        return result = result1;
+                        for (int i = 0; i < thisArr.Length; i++)
+                        {
+                            var thisEntry = thisArr[i];
+                            var otherEntry = otherArr[i];
+                            result = thisEntry.CompareTo(otherEntry);
+                            if (result != 0) break;
+                        }
                     }
                 }
                 else
@@ -70,6 +67,29 @@ public class GraphClassification
             }
             return result;
         }
+    }
+
+    class NodeComparer : IComparer<INode>
+    {
+        public int Compare(INode? a, INode? b)
+        {
+            if (a == null) return (b == null ? 0 : -1);
+            else if (b == null) return 1;
+            var adjA = a.adjacentNodes;
+            var adjB = b.adjacentNodes;
+            int na = adjA.Count;
+            int nb = adjB.Count;
+            if (na != nb) return na.CompareTo(nb);
+
+            for (int i = 0; i < na; i++)
+            {
+                var result = Compare(adjA[i], adjB[i]);
+                if (result != 0) return result;
+            }
+            return 0;
+        }
+
+        public static readonly NodeComparer instance = new NodeComparer();
     }
 
     record class AdjSignature(Signature[] adj) : Signature
@@ -133,34 +153,33 @@ public class GraphClassification
         return signature.ToString();
     }
 
-
-
     private static string GetSignatures(ISubGraph subgraph, bool withComments = false)
-    /*
-Cm [
-    [[[-2,0],0],[[-2,0],0]],
-    [[[-2,0],0],[[-2,0],0]],
-    [[[-2,0],0],[[-2,0],0]],
-    [[0]],
-    [[0]]
-]
-
-[
-    (N0:) [(N1:)[(N0:)0,(N2:)[(N1:)1],(N3:)[(N0:)0,(N1:)1]],(N3:)[(N0:)0,(N1:)[(N0:)0,(N2:)[(N1:)1],(N3:)1]]],\n
-    (N1:) [(N0:)[(N1:)0,(N3:)[(N0:)1,(N1:)0]],(N2:)[(N1:)0],(N3:)[(N0:)[(N1:)0,(N3:)1],(N1:)0]],\n
-    (N2:) [(N1:)[(N0:)[(N1:)1,(N3:)[(N0:)1,(N1:)2]],(N2:)0,(N3:)[(N0:)[(N1:)2,(N3:)1],(N1:)1]]],\n
-    (N3:) [(N0:)[(N1:)[(N0:)1,(N2:)[(N1:)1],(N3:)0],(N3:)0],(N1:)[(N0:)[(N1:)1,(N3:)0],(N2:)[(N1:)1],(N3:)0]]
-]
-
-A = [-2,0]
-B = [0]
-C = [A,0]
-D = [B]
-E = [C,C]
-
-// [E,E,E,D,D]
-     */
     {
+        /*
+    Cm [
+        [[[-2,0],0],[[-2,0],0]],
+        [[[-2,0],0],[[-2,0],0]],
+        [[[-2,0],0],[[-2,0],0]],
+        [[0]],
+        [[0]]
+    ]
+
+    [
+        (N0:) [(N1:)[(N0:)0,(N2:)[(N1:)1],(N3:)[(N0:)0,(N1:)1]],(N3:)[(N0:)0,(N1:)[(N0:)0,(N2:)[(N1:)1],(N3:)1]]],\n
+        (N1:) [(N0:)[(N1:)0,(N3:)[(N0:)1,(N1:)0]],(N2:)[(N1:)0],(N3:)[(N0:)[(N1:)0,(N3:)1],(N1:)0]],\n
+        (N2:) [(N1:)[(N0:)[(N1:)1,(N3:)[(N0:)1,(N1:)2]],(N2:)0,(N3:)[(N0:)[(N1:)2,(N3:)1],(N1:)1]]],\n
+        (N3:) [(N0:)[(N1:)[(N0:)1,(N2:)[(N1:)1],(N3:)0],(N3:)0],(N1:)[(N0:)[(N1:)1,(N3:)0],(N2:)[(N1:)1],(N3:)0]]
+    ]
+
+    A = [-2,0]
+    B = [0]
+    C = [A,0]
+    D = [B]
+    E = [C,C]
+
+    // [E,E,E,D,D]
+         */
+
         // var signatures = new List<string>();
         var signatures = new List<string>();
         foreach (var n1 in subgraph.nodes)
@@ -180,6 +199,46 @@ E = [C,C]
     }
 
 
+    private static string GetSignatureII(ISubGraph subgraph, bool withComments = false)
+    {
+        var order = subgraph.graph.order;
+        bool[] visited = new bool[order];
+        int[] oldIdToNewId = new int[order];
+        int[] newIdToOldId = new int[order];
+
+        var findBestNode = new Func<IEnumerable<INode>, INode>((nodes) =>
+        {
+            INode? bestNode = null;
+            foreach (var n in nodes)
+            {
+                if (!visited[n.id] && (bestNode == null || NodeComparer.instance.Compare(n, bestNode) > 0)) bestNode = n;
+            }
+            return bestNode!;
+        });
+
+        var signatureFrom = new Func<INode, Signature>((start) => new LnkSignature(0));
+
+
+
+        for (int nodeNo = 0; nodeNo < order; nodeNo++)
+        {
+            var bestNode = findBestNode(subgraph.nodes);
+            visited[bestNode.id] = true;
+            newIdToOldId[nodeNo] = bestNode.id;
+            oldIdToNewId[bestNode.id] = nodeNo;
+        }
+        var delim = withComments ? ",\n" : ",";
+        List<string> signatures = new List<string>();
+
+        for (int nodeNo = 0; nodeNo < order; nodeNo++)
+        {
+            var n = subgraph.nodes[newIdToOldId[nodeNo]];
+            signatures.Add("[" + String.Join(",", n.adjacentNodes.Select(n2 => oldIdToNewId[n2.id]).OrderBy(n2 => n2)) + "]");
+        }
+        return "[" + String.Join(delim, signatures) + "]";
+    }
+
+
 
     static void TestSignature(string g6, string expectedSignature, bool withComments = false)
     {
@@ -188,6 +247,18 @@ E = [C,C]
         var newSignature = GetSignatures(subgraph, withComments);
         TestEngine.AssertEquals($"Graph {g6} signature", () => newSignature, expectedSignature);
     }
+
+    static void TestSignatureII(string g6, string expectedSignature, bool withComments = false)
+    {
+        var subgraph = (G6.parse(g6).AsSubGraph())!;
+
+        var newSignature = GetSignatureII(subgraph, withComments);
+        Console.WriteLine("expectedSignature = " + expectedSignature);
+        Console.WriteLine("newSignature = " + newSignature);
+        // TestEngine.AssertEquals($"Graph {g6} signature", () => newSignature, expectedSignature);
+    }
+
+
 
     static string GetSignature(string g6, bool withComments = false)
     {
@@ -206,8 +277,8 @@ E = [C,C]
 
     public static void TestSmallGraphOf4()
     {
-        TestSignature("Cm", "[[[[[1,2],1],[[1,2],1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[0,1],0],[[0,1],0],[0]]]", false);
-        TestSignature("Cy", "[[[[[1,2],1],[[1,2],1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[[1],0,1],0],[[0,1],[1],0]],[[[0,1],0],[[0,1],0],[0]]]", false);
+        string sig4 = GetSignature("Cm");
+        TestSignature("Cy", sig4);
 
     }
 
@@ -242,10 +313,10 @@ E = [C,C]
 
     public static void TestTriangleWithLeg()
     {
-        TestSignature("Cm", @"[/*#0*/[[[[1],0,1],0],[[0,1],[1],0]],
+        TestSignature("Cm", @"[/*#0*/[[[0,1],[1],0],[[[1],0,1],0]],
 /*#1*/[[[0,1],0],[[0,1],0],[0]],
 /*#2*/[[[[1,2],1],[[1,2],1],0]],
-/*#3*/[[[[1],0,1],0],[[0,1],[1],0]]]", true);
+/*#3*/[[[0,1],[1],0],[[[1],0,1],0]]]", true);
     }
 
 

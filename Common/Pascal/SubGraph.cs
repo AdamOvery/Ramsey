@@ -26,10 +26,10 @@ public class SubGraph : ISubGraph
 
         public int id { get; private set; }
 
-        internal ISet<INode>? _adjacentNodes = null;
+        internal IList<INode>? _adjacentNodes = null;
 
 
-        public ISet<INode> adjacentNodes
+        public IList<INode> adjacentNodes
         {
             get
             {
@@ -49,9 +49,9 @@ public class SubGraph : ISubGraph
         override public string ToString() => id.ToString();
     }
 
-    private ISet<INode> getAdjacentNodes(Node n1)
+    private IList<INode> getAdjacentNodes(Node n1)
     {
-        return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToHashSet<INode>();
+        return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToList<INode>();
     }
 
     protected SubGraph(IGraph graph, IEnumerable<INode>? nodes = null)
