@@ -18,7 +18,8 @@ public class PascalProgram
         // IsConnectedAlgorithm.Tests();
         // LongestCycleSearch.Tests();
         // Ramsey3_4.Tests();
-        // UITest.Tests();        
+        // UITest.Tests();   
+        //NodeComparer.Tests();     
         SortedGraph.Tests();
     }
 
