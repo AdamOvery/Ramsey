@@ -11,7 +11,7 @@ class AdamProgram
         Console.WriteLine("Example 4: C,3,4,8,Y,3");
         Console.WriteLine("Example 5: C,3,5,12,Y,4");
         Console.WriteLine("Example 6: D,3,4,8,Y,3,N");
-        Console.WriteLine("Example 6: D,3,5,12,Y,4,N (This takes about 2 mins)");
+        Console.WriteLine("Example 7: D,3,5,12,Y,4,N (This takes about 2 mins)");
         Console.WriteLine("");
 
         // Test Code only
