@@ -49,10 +49,31 @@ static class SortedGraph
         TestSorted("ex9", @"h?`DAagtBSUgugZSUtAugJY_UtCUtEJYbaug{UtFpZS^aug^augNpZSB{UtC^augP}JYab{UtEb{UtBP}JYas^augub{UtBYNpZSUs^augUs^augjYNpZSIub{Ut@Us^augDZP}JY_", sig41b);
     }
 
-    internal static void TestSorted(string message, string originalG6, string expectedG6)
+    internal static void TestSorted(string message, string originalG6, string expectedG6, bool displayNodes = true)
     {
         IGraph graph = G6.parse(originalG6);
         var sortedGraph = graph.Sorted();
         AssertEquals("[Sorted] " + message, () => G6.fromGraph(sortedGraph), expectedG6);
+        if (displayNodes)
+        {
+            Console.WriteLine("Original:");
+            DisplayNodes(graph);
+            Console.WriteLine("Sorted:");
+            DisplayNodes(sortedGraph);
+        }
+    }
+
+    private static void DisplayNodes(IGraph graph)
+    {
+        for (int i = 0; i < graph.order; i++)
+        {
+            var adj = new List<int>();
+            for (int j = 0; j < graph.order; j++)
+            {
+                if (i != j && graph.GetEdgeValue(i, j)) adj.Add(j);
+            }
+            var s = "[" + String.Join(",", adj.Select(n => "N" + n)) + "]";
+            Console.WriteLine($"N{i}: {adj.Count} {s}");
+        }
     }
 }
