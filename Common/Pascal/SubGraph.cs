@@ -4,15 +4,19 @@ public class SubGraph : ISubGraph
 {
     private readonly IGraph _graph;
 
-    IList<INode> _nodes;
+    List<INode> _nodes;
     // Node[] _graphNodes ;
     public int order { get; private set; }
 
-    public IList<INode> nodes
+    public List<INode> nodes
     {
         get
         {
             return _nodes;
+        }
+        set
+        {
+            _nodes = value;
         }
     }
 
@@ -24,16 +28,20 @@ public class SubGraph : ISubGraph
     {
         private readonly SubGraph subGraph;
 
-        public int id { get; private set; }
+        public int id { get; set; }
 
-        internal IList<INode>? _adjacentNodes = null;
+        internal List<INode>? _adjacentNodes = null;
 
 
-        public IList<INode> adjacentNodes
+        public List<INode> adjacentNodes
         {
             get
             {
                 return this._adjacentNodes ??= subGraph.getAdjacentNodes(this);
+            }
+            set
+            {
+                _adjacentNodes = value;
             }
         }
 
@@ -49,7 +57,7 @@ public class SubGraph : ISubGraph
         override public string ToString() => id.ToString();
     }
 
-    private IList<INode> getAdjacentNodes(Node n1)
+    private List<INode> getAdjacentNodes(Node n1)
     {
         return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToList<INode>();
     }

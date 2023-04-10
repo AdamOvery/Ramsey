@@ -16,7 +16,7 @@
         public bool IsSuccess { get; private set; }
         public TimeSpan TimeTaken { get; private set; }
         public int Iterations { get; private set; }
-        public IList<Solution> Solutions { get; private set; }
+        public List<Solution> Solutions { get; private set; }
 
         private GraphEdges CreateNewGraphEdges()
         {

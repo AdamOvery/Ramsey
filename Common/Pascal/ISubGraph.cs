@@ -4,7 +4,7 @@ public interface ISubGraph
 {
     IGraph graph { get; }
 
-    IList<INode> nodes { get; }
+    List<INode> nodes { get; set; }
 
     String Label { get; set; }
 

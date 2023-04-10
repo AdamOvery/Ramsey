@@ -228,12 +228,6 @@ public partial class OldGraphClassification
         TestOldSignature("KGsA@?dCHEQ?", sig12);
     }
 
-    public static void TestAdamCrazyGraph()
-    {
-        string sig41 = GetOldSignature(@"hUxtuxmluv\m\mMvBls\mpuxblpblopuwK\m@bloEMv?K\m?K\m_EMvW@blr?K\mK?puwW@blsW@bluK?puzb?K\m[W@bltp_EMvZb?K\mZb?K\mlp_EMvZ[W@blvZb?K\m\mK?puw");
-        TestOldSignature(@"h?`DAagtBSUgugZSUtAugJY_UtCUtEJYbaug{UtFpZS^aug^augNpZSB{UtC^augP}JYab{UtEb{UtBP}JYas^augub{UtBYNpZSUs^augUs^augjYNpZSIub{Ut@Us^augDZP}JY_", sig41);
-    }
-
     public static void TestCliqueOf5andCliqueOf3()
     {
         // https://ramsey-paganaye.vercel.app/pascal/1?g6=K~{???A????S

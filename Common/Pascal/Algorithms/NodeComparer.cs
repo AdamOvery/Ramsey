@@ -1,6 +1,8 @@
 namespace Pascal;
 
 
+/// <summary>Compares two node in their existing configuration.</summary>
+/// <remarks>If the adjacent nodes are not sorted, it will favour the best sorted adjacent node.</remarks>
 public class NodeComparer : IComparer<INode>
 {
     public int Compare(INode? a, INode? b)

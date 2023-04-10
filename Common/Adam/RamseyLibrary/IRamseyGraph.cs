@@ -9,6 +9,6 @@
         public bool IsSuccess { get; }
         public TimeSpan TimeTaken { get; }
         public int Iterations { get; }
-        public IList<Solution> Solutions { get; }
+        public List<Solution> Solutions { get; }
     }
 }
