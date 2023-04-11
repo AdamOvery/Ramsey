@@ -10,13 +10,21 @@
         // This is the number of edges that each node has.
         public int? NodeEdgeCount { get; set; }
 
-        public RamseyConfig(int nodeCount, int maxCliqueOn, int maxCliqueOff, bool findAllSolutions, int? nodeEdgeCount = null)
+        // Don't even check if any node has less then these edges.
+        public int? MinNodeEdgeCount { get; set; }
+
+        public RamseyConfig(int nodeCount, int maxCliqueOn, int maxCliqueOff, bool findAllSolutions, int? nodeEdgeCount = null, int? minNodeEdgeCount = null)
         {
             NodeCount = nodeCount;
             MaxCliqueOn = maxCliqueOn;
             MaxCliqueOff = maxCliqueOff;
             FindAllSolutions = findAllSolutions;
             NodeEdgeCount = nodeEdgeCount;
+            MinNodeEdgeCount = minNodeEdgeCount;
+            if (MinNodeEdgeCount is null)
+            {
+                MinNodeEdgeCount = nodeEdgeCount;
+            }
         }
     }
 }

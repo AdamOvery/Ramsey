@@ -10,6 +10,8 @@ class AdamProgram
         Console.WriteLine("Example 3: B,3,4,8,Y,2");
         Console.WriteLine("Example 4: C,3,4,8,Y,3");
         Console.WriteLine("Example 5: C,3,5,12,Y,4");
+        Console.WriteLine("Example 6: D,3,4,8,Y,3,N");
+        Console.WriteLine("Example 7: D,3,5,12,Y,4,N (This takes about 2 mins)");
         Console.WriteLine("");
 
         // Test Code only
@@ -17,6 +19,7 @@ class AdamProgram
         ////var graphG6 = "Ls`?XGRQR@B`Kc";
         ////var graphG6 = "UsaCB@AQAGI?HGIABGOKJCcoa[``o_U[?LcGD[O?";
         //var graphG6 = "UsaCAHAQA_K?GcC`@`XHaDH_Xa@QQOKwGJKOK[G?";
+        //var graphG6 = "bsaCCA?O?O_aC??`c@O@b?RcHQ?DcA@H?PC_@QO@@Q?DA@MP?RgKADoH?aR?KCbOC_JE?xO@AALC@AJPG?__V?_K@ROO_A@dOG@?_";
         //MatrixGraphAdam testGraph = (MatrixGraphAdam)G6.parse(graphG6, MatrixGraphAdam.factory);
         //var nodeLoops = NodeLoopUtil.FindAllNodeLoops(testGraph.edges);
         //var ramseyEdges = NodeLoopUtil.FindAllRamseyEdges(nodeLoops, testGraph.edges.GetLength(0));
@@ -33,9 +36,43 @@ class AdamProgram
         //    }
         //}
 
-        Console.WriteLine("Enter Ramsey Type: 'A' -> Quick Full Symmetrical, 'B' -> Node Identification, 'C' - R(3,x) Type 1");
+        //var graphG6 = "Ls`?XGRQR@B`Kc";
+        //MatrixGraphAdam testGraph = (MatrixGraphAdam)G6.parse(graphG6, MatrixGraphAdam.factory);
+        //var nodeCountTest = testGraph.edges.GetLength(0);
+
+        //while (true)
+        //{
+        //    Console.WriteLine(graphG6);
+        //    Console.WriteLine("Enter node1");
+        //    var node1String = Console.ReadLine();
+        //    if (!int.TryParse(node1String, out var swap1))
+        //    {
+        //        return;
+        //    }
+        //    Console.WriteLine("Enter node2");
+        //    var node2String = Console.ReadLine();
+        //    if (!int.TryParse(node2String, out var swap2))
+        //    {
+        //        return;
+        //    }
+
+        //    var newEdges = testGraph.edges.Clone() as bool[,] ?? new bool[nodeCountTest, nodeCountTest];
+        //    for (var loop = 0; loop < nodeCountTest; loop++)
+        //    {
+        //        newEdges[loop, swap1] = testGraph.edges[loop, swap2];
+        //        newEdges[loop, swap2] = testGraph.edges[loop, swap1];
+        //        newEdges[swap1, loop] = testGraph.edges[swap2, loop];
+        //        newEdges[swap2, loop] = testGraph.edges[swap1, loop];
+        //    }
+
+        //    testGraph.edges = newEdges;
+        //    graphG6 = G6.fromGraph(testGraph);
+        //}
+
+
+        Console.WriteLine($"Enter Ramsey Type:{Environment.NewLine}'A' -> Quick Full Symmetrical{Environment.NewLine}'B' -> Node Identification{Environment.NewLine}'C' - R(3,x) Type 1{Environment.NewLine}'D' - R(3,x) Generic");
         var ramseyGraphType = Console.ReadLine()?.ToUpperInvariant();
-        if (!new string[] { "A", "B", "C" }.Contains(ramseyGraphType))
+        if (!new string[] { "A", "B", "C", "D" }.Contains(ramseyGraphType))
         {
             Console.WriteLine("Invalid Response");
             return;
@@ -76,23 +113,57 @@ class AdamProgram
             return;
         }
 
-        int? minEdgeCount = null;
+        int? nodeEdgeCount = null;
+        int? minNodeEdgeCount = null;
 
         if (new string[] { "B", "C" }.Contains(ramseyGraphType))
         {
             Console.WriteLine("Enter minimum 'On' edge count per node");
-            var minEdgeCountString = Console.ReadLine();
+            var nodeEdgeCountString = Console.ReadLine();
 
-            if (!int.TryParse(minEdgeCountString, out var minEdgeCountOut))
+            if (!int.TryParse(nodeEdgeCountString, out var nodeEdgeCountOut))
             {
                 Console.WriteLine("Invalid Response");
                 return;
             }
 
-            minEdgeCount = minEdgeCountOut;
+            nodeEdgeCount = nodeEdgeCountOut;
         }
 
-        var ramseyConfig = new RamseyConfig(nodeCount, maxCliqueOn, maxCliqueOff, findAllSolutions ?? false, minEdgeCount);
+        if (new string[] { "D" }.Contains(ramseyGraphType))
+        {
+            Console.WriteLine("Enter 'On' edge count per node");
+            var nodeEdgeCountString = Console.ReadLine();
+
+            if (!int.TryParse(nodeEdgeCountString, out var nodeEdgeCountOut))
+            {
+                Console.WriteLine("Invalid Response");
+                return;
+            }
+
+            nodeEdgeCount = nodeEdgeCountOut;
+
+            Console.WriteLine("Check for solutions with one fewer edge per node? (Y/N)");
+
+            var checkForSolutionsWithOneFewerEdgeString = Console.ReadLine()?.ToUpperInvariant();
+            bool? checkForSolutionsWithOneFewerEdge = (checkForSolutionsWithOneFewerEdgeString == "N") ? false : (checkForSolutionsWithOneFewerEdgeString == "Y") ? true : null;
+            if (checkForSolutionsWithOneFewerEdge is null)
+            {
+                Console.WriteLine("Invalid Response");
+                return;
+            }
+
+            if (checkForSolutionsWithOneFewerEdge == true)
+            {
+                minNodeEdgeCount = nodeEdgeCount - 1;
+            }
+            else
+            {
+                minNodeEdgeCount = nodeEdgeCount;
+            }
+        }
+
+        var ramseyConfig = new RamseyConfig(nodeCount, maxCliqueOn, maxCliqueOff, findAllSolutions ?? false, nodeEdgeCount, minNodeEdgeCount);
 
         IRamseyGraph ramsey;
         if (ramseyGraphType == "A")
@@ -106,6 +177,10 @@ class AdamProgram
         else if (ramseyGraphType == "C")
         {
             ramsey = new RamseyGraphC(ramseyConfig);
+        }
+        else if (ramseyGraphType == "D")
+        {
+            ramsey = new RamseyGraphD(ramseyConfig);
         }
         else
         {
@@ -123,6 +198,7 @@ class AdamProgram
             {
                 Console.WriteLine($"{description}. G6={solution.G6Code}. Solution = {Environment.NewLine}{solution.EdgeDescription}. Found in {timeTaken}");
             }
+            Console.WriteLine($"Solution count: {ramsey.Solutions.Count}");
         }
         else
         {
