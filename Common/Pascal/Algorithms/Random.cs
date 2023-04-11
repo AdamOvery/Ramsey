@@ -2,6 +2,8 @@ using Pascal;
 
 static class RandomGraph
 {
+    static Random rnd = new Random(222333);
+        
     internal static void Tests()
     {
         IGraph g = Random(5);
@@ -12,7 +14,6 @@ static class RandomGraph
     {
         if (factory == null) factory = MatrixGraph.factory;
         var g = factory.newGraph(order);
-        var rnd = new Random();
         for (var b = 1; b < order; b++)
         {
             for (var a = 0; a < b; a++)

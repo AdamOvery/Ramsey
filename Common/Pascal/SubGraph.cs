@@ -11,8 +11,6 @@ public class SubGraph : ISubGraph
 
     public IGraph graph { get { return _graph; } }
 
-    public string Label { get; set; }
-
     public class Node : INode
     {
         private readonly SubGraph subGraph;
@@ -21,17 +19,14 @@ public class SubGraph : ISubGraph
 
         public List<INode> adjacentNodes { get; set; }
 
-        public string Label { get; set; }
-
         public Node(SubGraph subGraph, int id)
         {
             this.subGraph = subGraph;
             this.id = id;
-            this.Label = "N" + id.ToString();
             this.adjacentNodes = new List<INode>();
         }
 
-        override public string ToString() => id.ToString() + " " + Label;
+        override public string ToString() => id.ToString();
     }
 
     // private List<INode> getAdjacentNodes(Node n1)
@@ -63,7 +58,6 @@ public class SubGraph : ISubGraph
                 }
             }
         }
-        this.Label = "";
     }
 
     virtual protected Node CreateNode(int id)

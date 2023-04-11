@@ -3,8 +3,24 @@ namespace Pascal;
 
 /// <summary>Compares two node in their existing configuration.</summary>
 /// <remarks>If the adjacent nodes are not sorted, it will favour the best sorted adjacent node.</remarks>
+// Problem: the algorithm is not always symmetric DFSNodeComparer is getting us nowhere
+// BFSNodeComparer appears a lot better.
 public class DFSNodeComparer : IComparer<INode>
 {
+    internal static void Tests()
+    {
+        TestEngine.Test("NodeComparer", () =>
+         {
+             // NodeWithMoreEdgesArrivesFirst();
+             // NodeWithBetterAdjacentsArrivesFirst();
+             // // // When_all_is_equal_the_node_with_the_lower_id_wins_which_is_wrong();
+             //TheBigClVsCr();
+             // CaVsCo();
+             // TestD_oVsDzc();
+             //TestDk_VSDq_();
+             Test_DqG_vs_DpO();
+         });
+    }
     public int Compare(INode? a, INode? b)
     {
         if (a == null) return (b == null ? 0 : 1); // null is less than anything else
@@ -91,18 +107,7 @@ public class DFSNodeComparer : IComparer<INode>
 
     public static readonly DFSNodeComparer instance = new DFSNodeComparer();
 
-    internal static void Tests()
-    {
-        TestEngine.Test("NodeComparer", () =>
-         {
-             // NodeWithMoreEdgesArrivesFirst();
-             // NodeWithBetterAdjacentsArrivesFirst();
-             // // // When_all_is_equal_the_node_with_the_lower_id_wins_which_is_wrong();
-             //TheBigClVsCr();
-             //CaVsCo();
-             TestD_oVsDzc();
-         });
-    }
+
 
     private static void NodeWithMoreEdgesArrivesFirst()
     {
@@ -157,7 +162,7 @@ public class DFSNodeComparer : IComparer<INode>
     {
         // C] Cl and Cr are equivalent. It is a square
         //  
-        TestEngine.Test("CaVsCo", () =>
+        TestEngine.Test("Ca vs Co", () =>
         {
 
             var g = G6.parse("Ca").AsSubGraph();
@@ -167,15 +172,29 @@ public class DFSNodeComparer : IComparer<INode>
 
     public static void TestD_oVsDzc()
     {
-        TestEngine.Test("TestD^oVsDzc", () =>
+        TestEngine.Test("Test D^o vs Dzc", () =>
         {
             var g = G6.parse("D^o").AsSubGraph();
             TestEngine.Assert("n3 arrives before n1", () => DFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[1]) < 0);
         });
     }
 
-    static int getEdgeNo(int a, int b)
+    public static void TestDk_VSDq_()
     {
-        return a + b * (b - 1) / 2;
+        TestEngine.Test("Test Dk? vs Dq?", () =>
+        {
+            var g = G6.parse("Dk?").AsSubGraph();
+            TestEngine.Assert("n3 arrives before n2", () => DFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[2]) < 0);
+        });
     }
+
+    public static void Test_DqG_vs_DpO()
+    {
+        TestEngine.Test("Test DqG vs DpO", () =>
+        {
+            var g = G6.parse("DpO").AsSubGraph();
+            TestEngine.Assert("n4 arrives before n3", () => DFSNodeComparer.instance.Compare(g.nodes[4], g.nodes[3]) < 0);
+        });
+    }
+
 }

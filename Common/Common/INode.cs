@@ -5,7 +5,6 @@ public interface INode
     int id { get; set; }
     List<INode> adjacentNodes { get; set; }
 
-    String Label { get; set; }
 }
 
 public static class INodes

@@ -3,6 +3,8 @@ using static Pascal.TestEngine;
 
 static class SortedGraph
 {
+    public static bool Verbose = false;
+
     internal static void Tests(IComparer<INode> comparer)
     {
         // TriangleWithLeg();
@@ -12,26 +14,51 @@ static class SortedGraph
         // not working yet TestAdamCrazyGraphI();
         // TestCaVsCo();
         //TestD_oVsDzc(comparer);
-        TestRandomGraphs(5, comparer);
+        // TestSorted("DUG should get you DpG and not Dpo", @"DUG", @"Dpg", comparer, displaySort: true);
+        TestRandomGraphs(7, nbGraphs: 100_000, nbShuffle: 10_000, comparer: comparer);
 
     }
 
     public static IGraph Sorted(this IGraph graph, IComparer<INode> comparer, IGraphFactory? factory = null)
     {
-        var subGraph = graph.AsSubGraph();
-        var sortedNodes = subGraph.nodes.OrderBy(n => n, comparer).ToList();
         int pass = 0;
-        while (!sortedNodes.IsOrdered() && pass++ < 100)
+        while (true)
         {
-            // resequence the node Ids
-            sortedNodes.ForEachIndexed((n, i) => { n.id = i; });
-            // reorder nodes and adjacent nodes
-            subGraph.nodes = sortedNodes;
-            subGraph.nodes.ForEach(n => n.adjacentNodes = n.adjacentNodes.OrderBy(n => n.id).ToList());
-            // then sort again to see if it has changed again
-            sortedNodes = subGraph.nodes.OrderBy(n => n, comparer).ToList();
+            var subGraph = graph.AsSubGraph();
+            if (Verbose)
+            {
+                Console.WriteLine(graph.ToString($"Pass {pass}..."));
+            }
+            var unsortedNode = FindFirstUnsortedNode(subGraph, comparer);
+            if (unsortedNode < 0) break;
+            graph = SwapTwoNodes(subGraph, unsortedNode, unsortedNode + 1, factory);
+            pass += 1;
+            if (pass == 1000) throw new Exception("Infinite loop here");
         }
-        return subGraph.ToGraph(factory);
+        return graph;
+    }
+
+    public static int FindFirstUnsortedNode(this ISubGraph subgraph, IComparer<INode> comparer)
+    {
+        for (int i = 0; i < subgraph.graph.order - 1; i++)
+        {
+            var na = subgraph.nodes[i];
+            var nb = subgraph.nodes[i + 1];
+            var cmp = comparer.Compare(na, nb);
+            if (cmp > 0) return i;
+        }
+        return -1;
+    }
+
+    public static IGraph SwapTwoNodes(this ISubGraph subgraph, int a, int b, IGraphFactory? factory)
+    {
+        var na = subgraph.nodes[a];
+        var nb = subgraph.nodes[b];
+
+        subgraph.nodes[a] = nb;
+        subgraph.nodes[b] = na;
+
+        return subgraph.ToGraph(factory);
     }
 
     private static void LargerGraphOf15(IComparer<INode> comparer)
@@ -110,8 +137,9 @@ static class SortedGraph
         });
     }
 
-    public static void TestRandomGraphs(int order, IComparer<INode> comparer, int nbGraphs = 1000, int nbShuffle = 10)
+    public static void TestRandomGraphs(int order, IComparer<INode> comparer, int nbGraphs = 10_000, int nbShuffle = 10)
     {
+        // here I test that all shuffled graphs are sorted the same way on many graphs
         for (int i = 0; i < nbGraphs; i++)
         {
             TestRandomGraph(order, comparer, nbShuffle);
@@ -121,6 +149,7 @@ static class SortedGraph
 
     public static void TestRandomGraph(int order, IComparer<INode> comparer, int nbShuffle = 10)
     {
+        // here I test that many shuffled graphs are sorted the same way
         Test("TestRandomGraph", () =>
         {
             var original = RandomGraph.Random(order);
@@ -164,4 +193,7 @@ static class SortedGraph
     {
         Console.WriteLine(graph.ToString(title));
     }
+
+
+
 }

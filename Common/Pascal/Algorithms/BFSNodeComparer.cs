@@ -5,6 +5,7 @@ namespace Pascal;
 /// <remarks>If the adjacent nodes are not sorted, it will favour the best sorted adjacent node.</remarks>
 public class BFSNodeComparer : IComparer<INode>
 {
+
     internal static void Tests()
     {
         TestEngine.Test("NodeComparer", () =>
@@ -13,7 +14,10 @@ public class BFSNodeComparer : IComparer<INode>
              // NodeWithBetterAdjacentsArrivesFirst();
              //TheBigClVsCr();
              //CaVsCo();
-             CQVSC_();
+             //CQVSC_();
+             // DK_D__();
+             Cw();
+             Ck();
          });
     }
 
@@ -64,9 +68,7 @@ public class BFSNodeComparer : IComparer<INode>
 
         if (result == 0)
         {
-            if (a0.id == 0) return -1;
-            else if (b0.id == 0) return 1;
-
+            // then we favour the node with the lowest id
             queue.Enqueue(pair0);
             visited.Clear();
             while (queue.Count > 0)
@@ -85,23 +87,50 @@ public class BFSNodeComparer : IComparer<INode>
                     if (na != nb) throw new Exception("Internal Error na!=nb");
                     for (int i = 0; i < na; i++)
                     {
-                        var aa = adjA[i];
-                        var bb = adjB[i];
-                        if (aa != bb)
+                        var a2 = adjA[i];
+                        var b2 = adjB[i];
+
+                        if (a == b2 && b == a2) continue;
+                        var aToA2 = getEdgeNo(a, a2);
+                        var bToB2 = getEdgeNo(b, b2);
+
+                        var aToB2 = getEdgeNo(a, b2 == a ? b : b2);
+                        var bToA2 = getEdgeNo(b, a2 == b ? a : a2);
+                        if (b2 == a || a2 == b)
                         {
-                            result = aa.id.CompareTo(bb.id);
-                            break;
+                            Console.WriteLine($"a={a.id} b={b.id} a2={a2.id} b2={b2.id}");
                         }
+                        var minKeep = Math.Min(aToA2, bToB2);
+                        var minSwap = Math.Min(aToB2, bToA2);
+                        if (minKeep < minSwap) { result = -1; break; }
+                        else if (minSwap < minKeep) { result = 1; break; }
+
                     }
                 }
                 visited[pair] = result;
+                if (result != 0) break;
             }
             if (result == 0)
             {
-                result = a0.id.CompareTo(b0.id);
+                result = a0.id.CompareTo(b0.id); // we have the same edges, we favour the node with the lowest id
             }
+            if (SortedGraph.Verbose) Console.WriteLine($"BFSNodeComparer: {a0.id} {b0.id} = {result} (by EdgeNo)");
+        }
+        else
+        {
+            if (SortedGraph.Verbose) Console.WriteLine($"BFSNodeComparer: {a0.id} {b0.id} = {result}");
         }
         return result;
+    }
+
+    static int getEdgeNo(INode na, INode nb)
+    {
+        var a = na.id;
+        var b = nb.id;
+
+        return (a < b) ? a + b * (b - 1) / 2
+        : (a > b) ? b + a * (a - 1) / 2
+        : 0;
     }
 
     public static readonly BFSNodeComparer instance = new BFSNodeComparer();
@@ -183,9 +212,9 @@ public class BFSNodeComparer : IComparer<INode>
     // CQVSC_
     private static void CQVSC_()
     {
-        // CQ and C' are equivalent. but C' is a tad better
+        // CQ and C` are equivalent. but C` is a tad better
 
-        TestEngine.Test("CQVSC'", () =>
+        TestEngine.Test("CQVSC`", () =>
         {
             var g = G6.parse("CQ").AsSubGraph();
             TestEngine.Assert("n0 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[2]) < 0);
@@ -194,5 +223,43 @@ public class BFSNodeComparer : IComparer<INode>
             TestEngine.Assert("n2 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[2], g.nodes[1]) < 0);
         });
     }
+
+    private static void DK_D__()
+    {
+        // CQ and C` are equivalent. but C` is a tad better
+
+        TestEngine.Test("DK? vs D`?`", () =>
+        {
+            var g = G6.parse("DK?").AsSubGraph();
+            TestEngine.Assert("n3 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[1]) < 0);
+        });
+    }
+
+    private static void Cw()
+    {
+
+        TestEngine.Test("Cw", () =>
+        {
+            var g = G6.parse("Cw").AsSubGraph();
+            TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
+            TestEngine.Assert("n0 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[2]) < 0);
+            TestEngine.Assert("n1 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[2]) < 0);
+        });
+    }
+
+    private static void Ck()
+    {
+
+        // TestEngine.Test("Ck", () =>
+        // {
+        //     var g = G6.parse("Ck").AsSubGraph();
+        //     TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
+        //     TestEngine.Assert("n1 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[2]) < 0);
+        //     TestEngine.Assert("n2 arrives aftere n3", () => BFSNodeComparer.instance.Compare(g.nodes[2], g.nodes[3]) > 0);
+        // });
+    }
+
+
+
 
 }

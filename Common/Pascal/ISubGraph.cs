@@ -6,8 +6,6 @@ public interface ISubGraph
 
     List<INode> nodes { get; set; }
 
-    String Label { get; set; }
-
     //    INode CreateNode(int id);
     ISubGraph CreateSubGraph(IEnumerable<INode> nodes);
 }
@@ -27,12 +25,21 @@ public static class ISubGraphExtension
 
     public static IGraph ToGraph(this ISubGraph g, IGraphFactory? factory = null)
     {
-        var graph = (factory ?? MatrixGraph.factory).newGraph(g.graph.order);
+        var order = g.nodes.Count;
+        var graph = (factory ?? MatrixGraph.factory).newGraph(order);
+
+        var indexOfNode = g.nodes.WithIndex<INode>().ToDictionary(x => x.item, x => x.index);
         foreach (var n1 in g.nodes)
         {
+            var i1 = indexOfNode[n1];
             foreach (var n2 in n1.adjacentNodes)
             {
-                if (n1.id < n2.id) graph.SetEdgeValue(n1.id, n2.id, true);
+
+                if (n1.id < n2.id)
+                {
+                    var i2 = indexOfNode[n2];
+                    graph.SetEdgeValue(i1, i2, true);
+                }
             }
         }
         return graph;
