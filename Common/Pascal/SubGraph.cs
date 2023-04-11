@@ -4,21 +4,10 @@ public class SubGraph : ISubGraph
 {
     private readonly IGraph _graph;
 
-    List<INode> _nodes;
     // Node[] _graphNodes ;
     public int order { get; private set; }
 
-    public List<INode> nodes
-    {
-        get
-        {
-            return _nodes;
-        }
-        set
-        {
-            _nodes = value;
-        }
-    }
+    public List<INode> nodes { get; set; }
 
     public IGraph graph { get { return _graph; } }
 
@@ -30,20 +19,7 @@ public class SubGraph : ISubGraph
 
         public int id { get; set; }
 
-        internal List<INode>? _adjacentNodes = null;
-
-
-        public List<INode> adjacentNodes
-        {
-            get
-            {
-                return this._adjacentNodes ??= subGraph.getAdjacentNodes(this);
-            }
-            set
-            {
-                _adjacentNodes = value;
-            }
-        }
+        public List<INode> adjacentNodes { get; set; }
 
         public string Label { get; set; }
 
@@ -51,23 +27,42 @@ public class SubGraph : ISubGraph
         {
             this.subGraph = subGraph;
             this.id = id;
-            this.Label = "";
+            this.Label = "N" + id.ToString();
+            this.adjacentNodes = new List<INode>();
         }
 
-        override public string ToString() => id.ToString();
+        override public string ToString() => id.ToString() + " " + Label;
     }
 
-    private List<INode> getAdjacentNodes(Node n1)
-    {
-        return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToList<INode>();
-    }
+    // private List<INode> getAdjacentNodes(Node n1)
+    // {
+    //     return _nodes.Where((n2) => n2 != n1 && graph.GetEdgeValue(n1.id, n2.id)).ToList<INode>();
+    // }
 
     protected SubGraph(IGraph graph, IEnumerable<INode>? nodes = null)
     {
         this._graph = graph;
-        if (nodes == null) nodes = Enumerable.Range(0, graph.order).Select(id => this.CreateNode(id));
-        this._nodes = nodes.ToList();
-        this.order = _nodes.Count;
+        if (nodes == null)
+        {
+            nodes = Enumerable.Range(0, graph.order).Select(id => this.CreateNode(id));
+        }
+        this.nodes = nodes.ToList();
+
+        var subGraphOrder = this.order = this.nodes.Count;
+
+        for (int b = 0; b < subGraphOrder; b++)
+        {
+            var nb = this.nodes[b];
+            for (int a = 0; a < b; a++)
+            {
+                var na = this.nodes[a];
+                if (graph.GetEdgeValue(na.id, nb.id))
+                {
+                    na.adjacentNodes.Add(nb);
+                    nb.adjacentNodes.Add(na);
+                }
+            }
+        }
         this.Label = "";
     }
 

@@ -1,5 +1,7 @@
 
 using System.Collections.Immutable;
+using System.Text;
+using Pascal;
 
 public delegate void EdgeChangedHandler(IGraph sender, int n1, int n2, bool value);
 
@@ -39,7 +41,7 @@ public interface IGraph
         }
     }
 
-    public void ActiveEdges(Action<int, int> action)
+    public void ForEachActiveEdge(Action<int, int> action)
     {
         for (int b = 0; b < this.order; b++)
         {
@@ -98,6 +100,22 @@ public interface IGraph
             }
         };
         forEachEdge(0, 1);
+    }
+
+    public string ToString(string title = "Graph")
+    {
+        var output = new StringBuilder();
+        output.AppendLine(title + " " + G6.fromGraph(this));
+        for (int i = 0; i < this.order; i++)
+        {
+            var adj = new List<int>();
+            for (int j = 0; j < this.order; j++)
+            {
+                if (i != j && this.GetEdgeValue(i, j)) adj.Add(j);
+            }
+            output.AppendLine($"N{i}: {adj.Count} [{String.Join(",", adj.Select(n => "N" + n))}]");
+        }
+        return output.ToString();
     }
 }
 
