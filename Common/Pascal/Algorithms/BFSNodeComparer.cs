@@ -16,8 +16,8 @@ public class BFSNodeComparer : IComparer<INode>
              //CaVsCo();
              //CQVSC_();
              // DK_D__();
-             Cw();
-             Ck();
+             //Cw();
+             Grz_bc();
          });
     }
 
@@ -145,8 +145,8 @@ public class BFSNodeComparer : IComparer<INode>
             //
             var g = G6.parse("IS`A?????").AsSubGraph();
             TestEngine.Assert("1 arrives before 2", () => (1).CompareTo(2) < 0); // sanity check 1 arrives before 2
-            TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
-            TestEngine.Assert("n0 arrives before n9", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[9]) < 0);
+            TestNodeArrivesBefore(g, 0, 1);
+            TestNodeArrivesBefore(g, 0, 9);
         });
     }
 
@@ -155,59 +155,9 @@ public class BFSNodeComparer : IComparer<INode>
         TestEngine.Test("When two nodes have same edge count, the node with better adjacents arrives first", () =>
         {
             var g = G6.parse("Is??GGC?G").AsSubGraph();
-            TestEngine.Assert("n5 arrives before n0", () => BFSNodeComparer.instance.Compare(g.nodes[5], g.nodes[0]) < 0);
+            TestNodeArrivesBefore(g, 5, 0);
         });
     }
-
-    // private static void When_all_is_equal_the_node_with_the_lower_id_wins_which_is_wrong()
-    // {
-    //     TestEngine.Test("When two nodes are identical, the node with the lower edge ID arrives first", () =>
-    //     {
-    //         var g = G6.parse("IA???@O??").AsSubGraph();
-    //         TestEngine.Assert("n1 arrives before n3", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[3]) < 0);
-    //         TestEngine.Assert("n3 arrives before n8", () => BFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[8]) < 0);
-    //         TestEngine.Assert("n8 arrives before n0", () => BFSNodeComparer.instance.Compare(g.nodes[8], g.nodes[0]) < 0);
-    //     });
-    // }
-    // // EAS?
-
-    // // Cr
-    // private static void TheBigClVsCr()
-    // {
-    //     // C] Cl and Cr are equivalent. It is a square
-    //     //  
-    //     TestEngine.Test("TheBigClVsCr", () =>
-    //     {
-
-    //         var g = G6.parse("Cl").AsSubGraph();
-    //         TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
-    //         TestEngine.Assert("n1 arrives before n3", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[3]) < 0);
-    //         TestEngine.Assert("n3 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[2]) < 0);
-    //     });
-    // }
-
-    // //CaVsCo
-
-    // private static void CaVsCo()
-    // {
-    //     // C] Cl and Cr are equivalent. It is a square
-    //     //  
-    //     TestEngine.Test("CaVsCo", () =>
-    //     {
-
-    //         var g = G6.parse("Ca").AsSubGraph();
-    //         TestEngine.Assert("n1 arrives before n0", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[0]) < 0);
-    //     });
-    // }
-
-    // public static void TestD_oVsDzc()
-    // {
-    //     TestEngine.Test("TestD^oVsDzc", () =>
-    //     {
-    //         var g = G6.parse("D^o").AsSubGraph();
-    //         TestEngine.Assert("n3 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[1]) < 0);
-    //     });
-    // }
 
     // CQVSC_
     private static void CQVSC_()
@@ -217,10 +167,10 @@ public class BFSNodeComparer : IComparer<INode>
         TestEngine.Test("CQVSC`", () =>
         {
             var g = G6.parse("CQ").AsSubGraph();
-            TestEngine.Assert("n0 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[2]) < 0);
-            TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
-            TestEngine.Assert("n0 arrives before n3", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[3]) < 0);
-            TestEngine.Assert("n2 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[2], g.nodes[1]) < 0);
+            TestNodeArrivesBefore(g, 0, 2);
+            TestNodeArrivesBefore(g, 0, 1);
+            TestNodeArrivesBefore(g, 0, 3);
+            TestNodeArrivesBefore(g, 2, 1);
         });
     }
 
@@ -231,7 +181,7 @@ public class BFSNodeComparer : IComparer<INode>
         TestEngine.Test("DK? vs D`?`", () =>
         {
             var g = G6.parse("DK?").AsSubGraph();
-            TestEngine.Assert("n3 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[3], g.nodes[1]) < 0);
+            TestNodeArrivesBefore(g, 3, 1);
         });
     }
 
@@ -241,25 +191,74 @@ public class BFSNodeComparer : IComparer<INode>
         TestEngine.Test("Cw", () =>
         {
             var g = G6.parse("Cw").AsSubGraph();
-            TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
-            TestEngine.Assert("n0 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[2]) < 0);
-            TestEngine.Assert("n1 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[2]) < 0);
+            TestNodeArrivesBefore(g, 0, 1);
+            TestNodeArrivesBefore(g, 0, 2);
+            TestNodeArrivesBefore(g, 1, 2);
         });
     }
 
-    private static void Ck()
+    private static void Grz_bc()
     {
+        //
 
-        // TestEngine.Test("Ck", () =>
-        // {
-        //     var g = G6.parse("Ck").AsSubGraph();
-        //     TestEngine.Assert("n0 arrives before n1", () => BFSNodeComparer.instance.Compare(g.nodes[0], g.nodes[1]) < 0);
-        //     TestEngine.Assert("n1 arrives before n2", () => BFSNodeComparer.instance.Compare(g.nodes[1], g.nodes[2]) < 0);
-        //     TestEngine.Assert("n2 arrives aftere n3", () => BFSNodeComparer.instance.Compare(g.nodes[2], g.nodes[3]) > 0);
-        // });
+        TestEngine.Test(@"Grz\bc", () =>
+        {
+            var g = G6.parse(@"Grz\bc").AsSubGraph();
+            TestNodeArrivesBefore(g, 0, 1);
+            TestNodeArrivesBefore(g, 1, 2);
+            TestNodeArrivesBefore(g, 2, 3);
+            TestNodeArrivesBefore(g, 3, 4);
+            TestNodeArrivesBefore(g, 4, 5);
+            TestNodeArrivesBefore(g, 5, 6);
+            TestNodeArrivesBefore(g, 6, 7);
+
+            TestNodeArrivesBefore(g, 0, 2);
+            TestNodeArrivesBefore(g, 1, 3);
+            TestNodeArrivesBefore(g, 2, 4);
+            TestNodeArrivesBefore(g, 3, 5);
+            TestNodeArrivesBefore(g, 4, 6);
+            TestNodeArrivesBefore(g, 5, 7);
+
+            TestNodeArrivesBefore(g, 0, 3);
+            TestNodeArrivesBefore(g, 1, 4);
+            TestNodeArrivesBefore(g, 2, 5);
+            TestNodeArrivesBefore(g, 3, 6);
+            TestNodeArrivesBefore(g, 4, 7);
+
+            TestNodeArrivesBefore(g, 0, 4);
+            TestNodeArrivesBefore(g, 1, 5);
+            TestNodeArrivesBefore(g, 2, 6);
+            TestNodeArrivesBefore(g, 3, 7);
+
+            TestNodeArrivesBefore(g, 0, 5);
+            TestNodeArrivesBefore(g, 1, 6);
+            TestNodeArrivesBefore(g, 2, 7);
+
+            TestNodeArrivesBefore(g, 0, 6);
+            TestNodeArrivesBefore(g, 1, 7);
+
+            TestNodeArrivesBefore(g, 0, 7);
+        });
     }
 
+    private static void TestNodeArrivesBefore(ISubGraph g, int n1, int n2)
+    {
+        TestEngine.Assert("n{n1} arrives before n{n2}", () => BFSNodeComparer.instance.Compare(g.nodes[n1], g.nodes[n2]) < 0);
+    }
 
+/*
+[Failed] [Shuffled] #0 original:Fr^cw shuffled:FrurW  expected F}oxw actual F{dzo
+[Failed] [Shuffled] #0 original:GUhZ~o shuffled:G~h[W{  expected GrzTrg actual Grz\bc
+*/
 
+    private static void GUhZ_o()
+    {
+
+        TestEngine.Test("GUhZ~o", () =>
+        {
+            var g = G6.parse("GUhZ~o").AsSubGraph();
+            // TestNodeArrivesBefore(g, 1, 2);
+        });
+    }
 
 }

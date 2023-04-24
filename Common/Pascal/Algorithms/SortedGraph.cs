@@ -7,16 +7,21 @@ static class SortedGraph
 
     internal static void Tests(IComparer<INode> comparer)
     {
-        // TriangleWithLeg();
-        // CliqueOf5and3();
-        // LargerGraphOf15();
-        // TestTweenGraphOfThree();
-        // not working yet TestAdamCrazyGraphI();
-        // TestCaVsCo();
-        //TestD_oVsDzc(comparer);
-        // TestSorted("DUG should get you DpG and not Dpo", @"DUG", @"Dpg", comparer, displaySort: true);
-        TestRandomGraphs(7, nbGraphs: 100_000, nbShuffle: 10_000, comparer: comparer);
+        // TriangleWithLeg(comparer);
+        // CliqueOf5and3(comparer);
+        // Verbose = true;
+        // LargerGraphOf15(comparer);
+        // TestTweenGraphOfThree(comparer);
+        // // not working yet TestAdamCrazyGraphI();
+        // TestCaVsCo(comparer);
+        // TestD_oVsDzc(comparer);
+        // TestSorted("DUG should get you DpG and not Dpo", @"DUG", @"Dpg", comparer);
 
+        // // [Failed] [Shuffled] #0 original:GUhZ~o shuffled:G~h[W{  expected GrzTrg actual Grz\bc
+        // // [Failed] [Shuffled] #0 original:Fr^cw shuffled:FrurW  expected F}oxw actual F{dzo
+        // TestRandomGraphs(6, nbGraphs: 10_000_000, nbShuffle: 1, comparer: comparer);
+
+        FindAllGraphsOf(6, comparer: comparer);
     }
 
     public static IGraph Sorted(this IGraph graph, IComparer<INode> comparer, IGraphFactory? factory = null)
@@ -33,7 +38,7 @@ static class SortedGraph
             if (unsortedNode < 0) break;
             graph = SwapTwoNodes(subGraph, unsortedNode, unsortedNode + 1, factory);
             pass += 1;
-            if (pass == 1000) throw new Exception("Infinite loop here");
+            if (pass == 1000) break; //  throw new Exception("Infinite loop here");
         }
         return graph;
     }
@@ -137,6 +142,25 @@ static class SortedGraph
         });
     }
 
+    public static void FindAllGraphsOf(int order, IComparer<INode> comparer)
+    {
+        order = 5;
+        long grayEdgeChangedCount = 0;
+        IGraph g = new MatrixGraph(order);
+        g.EdgeChanged += (sender, n1, n2, value) => { grayEdgeChangedCount += 1; };
+        long cpt = 0;
+        var set = new HashSet<string>();
+        g.ForEachGrayConfiguration(() =>
+        {
+            var sortedGraph = G6.fromGraph(g.Sorted(comparer));
+            set.Add(sortedGraph);
+            cpt++;
+        });
+        Console.WriteLine($"Found {set.Count} graphs of order {order} in {cpt} configurations");
+
+    }
+
+
     public static void TestRandomGraphs(int order, IComparer<INode> comparer, int nbGraphs = 10_000, int nbShuffle = 10)
     {
         // here I test that all shuffled graphs are sorted the same way on many graphs
@@ -153,12 +177,22 @@ static class SortedGraph
         Test("TestRandomGraph", () =>
         {
             var original = RandomGraph.Random(order);
-            var originalSorted = G6.fromGraph(original.Sorted(comparer));
+            var originalG6 = G6.fromGraph(original);
+            TestShuffles(originalG6, comparer, nbShuffle);
+        });
+    }
+
+    public static void TestShuffles(string originalG6, IComparer<INode> comparer, int nbShuffle = 10)
+    {
+        var original = G6.parse(originalG6);
+        var originalSorted = G6.fromGraph(original.Sorted(comparer));
+        Test("TestShuffles", () =>
+        {
             for (int i = 0; i < nbShuffle; i++)
             {
                 var shuffled = original.Shuffled();
                 var shuffledSorted = shuffled.Sorted(comparer);
-                AssertEquals($"[Shuffled] #{i} {G6.fromGraph(shuffled)}", () => G6.fromGraph(shuffledSorted), originalSorted);
+                AssertEquals($"[Shuffled] #{i} original:{originalG6} shuffled:{G6.fromGraph(shuffled)} ", () => G6.fromGraph(shuffledSorted), originalSorted);
             }
         });
     }

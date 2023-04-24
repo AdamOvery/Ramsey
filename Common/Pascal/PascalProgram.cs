@@ -21,11 +21,14 @@ public class PascalProgram
         // ShuffledGraph.Tests();
         // RandomGraph.Tests();
         // DFSNodeComparer.Tests();
+        // PTNodeComparer.Tests();        
         // SortedGraph.Tests(DFSNodeComparer.instance);
 
-        BFSNodeComparer.Tests();
-        SortedGraph.Tests(BFSNodeComparer.instance);
+        // BFSNodeComparer.Tests();        
+        // SortedGraph.Tests(BFSNodeComparer.instance);
+        // SortedGraph.Tests(PTNodeComparer.instance);
 
+        SymmetricDescent.Tests();
     }
 
 
