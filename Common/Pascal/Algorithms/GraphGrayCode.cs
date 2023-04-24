@@ -91,4 +91,38 @@ public class GraphGrayCode
         };
         forEachEdge(7);
     }
+
+    public static void ForEachGrayCode(int length, Func<int, bool, bool> action)
+    {
+        Action<int> forEachGray = (a0) => { };
+        int gray = 0;
+        int cpt = 0;
+        var diff = 0;
+
+        Console.WriteLine((cpt++) + ") " + gray + " " + Convert.ToString(gray, 2).PadLeft(8, '0') + " " + diff);
+        bool stop = false;
+        forEachGray = (n) =>
+        {
+            if (stop) return;
+            if (n == 0)
+            {
+                diff = 1 << n;
+                gray = gray ^ diff;
+                stop = action(n, (gray & diff) != 0);
+                if (stop) return;
+            }
+            else
+            {
+                forEachGray(n - 1);
+                if (stop) return;
+
+                diff = 1 << n;
+                gray = gray ^ (1 << n);
+                stop = action(n, (gray & diff) != 0);
+                if (stop) return;
+                forEachGray(n - 1);
+            }
+        };
+        forEachGray(length);
+    }
 }
