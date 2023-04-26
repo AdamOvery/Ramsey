@@ -96,10 +96,8 @@ public class GraphGrayCode
     {
         Action<int> forEachGray = (a0) => { };
         int gray = 0;
-        int cpt = 0;
         var diff = 0;
 
-        Console.WriteLine((cpt++) + ") " + gray + " " + Convert.ToString(gray, 2).PadLeft(8, '0') + " " + diff);
         bool stop = false;
         forEachGray = (n) =>
         {
