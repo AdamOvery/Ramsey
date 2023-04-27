@@ -10,22 +10,67 @@ static class SymmetricDescent
 
     static void BiggestR44()
     {
+        TestR3X();
+    }
+
+    static void TestR3X()
+    {
+        TestR(3, 3, 6);
+        TestR(3, 4, 9);
+        TestR(3, 5, 14);
+        TestR(3, 6, 18);
+        TestR(3, 7, 23);
+    }
+
+    static void TestR(int onClique, int offClique, int knownResult)
+    {
+        for (int order = knownResult - 2; order <= knownResult; order++)
+        {
+            Console.WriteLine("====================================================================================");
+            bool found = FindRamseyCounterExample(order, onClique, offClique);
+            if (order < knownResult)
+            {
+                if (found) Console.WriteLine($"[PASS] ** Found a counter example for R({onClique},{offClique}) = {order}. This is expected R({onClique},{offClique}) is {knownResult}.");
+                else Console.WriteLine($"[FAIL] ** No counter example found for R({onClique},{offClique}) = {order}. This is bad R({onClique},{offClique}) is {knownResult}.");
+            }
+            else
+            {
+        if (found) Console.WriteLine($"[FAIL]] ** Found a counter example for R({onClique},{offClique}) = {order}. This is really odd R({onClique},{offClique}) is {knownResult}."); 
+                else  Console.WriteLine($"[PASS] ** Found No counter example found for R({onClique},{offClique}) = {order}. This is expected. R({onClique},{offClique}) is {knownResult}");
+            }
+        }
+    }
+
+
+    static void RandomTests()
+    {
         bool B0 = false;
         bool B1 = true;
 
-        TryGraph("BiggestR44", 17, 4, 4, new bool[] 
-        //00  01  02  03  04  05  06  07  08  09  
-        { B0, B1, B1, B0, B1, B0, B0, B0, B1, B0,
+
+        TryGraph("BiggestR44", 17, 4, 4, new bool[]
+            //00  01  02  03  04  05  06  07  08  09  
+            { B0, B1, B1, B0, B1, B0, B0, B0, B1, B0,
         //10  11  12  13  14  15  16
           B0, B0, B0, B0, B0, B0, B0});
         Console.WriteLine("Expecting https://ramsey-paganaye.vercel.app/pascal/1?g6=PzlXWmJpZDeJEJbDgp%5CEJsWk");
 
+
+        FindRamseyCounterExample(7, 3, 4);
+        FindRamseyCounterExample(8, 3, 4);
+        FindRamseyCounterExample(9, 3, 4);
+        FindRamseyCounterExample(10, 3, 4);
+        FindRamseyCounterExample(11, 3, 4);
+        // ** R(4,4) = we should not find any 0 Off 0 On cliques
+
+
+
         FindRamseyCounterExample(17, 4, 4);
         // ** R(4,4) > 17: PCQefPsMcyXsxs[yVMaxsJfO Off cliques: 0, On Clique: 0
-        
+
         FindRamseyCounterExample(18, 4, 4);
         // ** R(4,4) = we should not find any 0 Off 0 On cliques
-        
+
 
         FindRamseyCounterExample(38, 5, 5);
         // it takes like 5 minutes then
@@ -47,16 +92,16 @@ static class SymmetricDescent
         Console.WriteLine("Expecting nothing this is not a solution");
     }
 
-    static void FindRamseyCounterExample(int order, int maxCliqueOn, int maxCliqueOff)
+    static bool FindRamseyCounterExample(int order, int maxCliqueOn, int maxCliqueOff)
     {
-        Test($"Checking if R({maxCliqueOn},{maxCliqueOff}) > {order}", () =>
+        bool foundCounterExample = false;
+        Title($"Checking if R({maxCliqueOn},{maxCliqueOff}) > {order}", () =>
         {
             SymmetricGraph g = new SymmetricGraph(order);
             CliqueWatcher w = new CliqueWatcher(g, maxCliqueOn, maxCliqueOff);
             long cpt = 0;
-            double cptMax = Math.Pow(2.0,order - 1);
+            double cptMax = Math.Pow(2.0, order - 1);
             int best = 1000;
-            bool foundCounterExample = false;
 
             GraphGrayCode.ForEachGrayCode(order - 2, (i, b) =>
             {
@@ -68,7 +113,7 @@ static class SymmetricDescent
                 }
                 else if (cpt % 5_000L == 0)
                 {
-                    Console.WriteLine($"... {cpt * 100.0/cptMax:0.##########}% R({maxCliqueOn},{maxCliqueOff}) {G6.fromGraph(g)} Off cliques: {w.offCliques}, On Clique: {w.onCliques}");
+                    Console.WriteLine($"... {cpt * 100.0 / cptMax:0.##########}% R({maxCliqueOn},{maxCliqueOff}) {G6.fromGraph(g)} Off cliques: {w.offCliques}, On Clique: {w.onCliques}");
                 }
                 cpt++;
                 g.SetEdgeValue(0, i + 1, b);
@@ -81,10 +126,12 @@ static class SymmetricDescent
                 else return false;
             });
 
-            if (!foundCounterExample) {
+            if (!foundCounterExample)
+            {
                 Console.WriteLine($"** We have not found a counter example of R({maxCliqueOn},{maxCliqueOff}) < {order}, in {cpt} configations. We are going to claim that R({maxCliqueOn},{maxCliqueOff}) <= {order}");
             }
         });
+        return foundCounterExample;
     }
 
     static void TryGraph(String title, int order, int maxCliqueOn, int maxCliqueOff, bool[] edges)

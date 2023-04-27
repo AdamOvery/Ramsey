@@ -8,6 +8,9 @@ public class CliqueWatcher
     Triangles triangles;
     Squares? squares;
     Pentagons? pentagons;
+    Hexagons? hexagons;
+    Heptagons? heptagons;
+
 
     public int offCliques;
     public int onCliques;
@@ -43,6 +46,14 @@ public class CliqueWatcher
             if (maxCliqueOn >= 5 || maxCliqueOff >= 5)
             {
                 pentagons = new Pentagons(o, squares);
+                if (maxCliqueOn >= 6 || maxCliqueOff >= 6)
+                {
+                    hexagons = new Hexagons(o, pentagons);
+                    if (maxCliqueOn >= 7 || maxCliqueOff >= 7)
+                    {
+                        heptagons = new Heptagons(o, hexagons);
+                    }
+                }
             }
         }
 
@@ -81,6 +92,8 @@ public class CliqueWatcher
             case 3: return triangles;
             case 4: return squares!;
             case 5: return pentagons!;
+            case 6: return hexagons!;
+            case 7: return heptagons!;
             default: throw new Exception($"Invalid clique size {size}");
         }
     }

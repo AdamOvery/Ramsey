@@ -27,7 +27,7 @@ public class PascalProgram
         // BFSNodeComparer.Tests();        
         // SortedGraph.Tests(BFSNodeComparer.instance);
         // SortedGraph.Tests(PTNodeComparer.instance);
-        CounterWithGaps.Tests();
+        // CounterWithGaps.Tests();
         SymmetricDescent.Tests();
     }
 

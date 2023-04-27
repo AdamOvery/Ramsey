@@ -43,7 +43,7 @@ class Pentagons : ICliqueCollection
         return pentagons;
     }
 
-    private Clique GetPentagon(int a, int b, int c, int d, int e)
+    public Clique GetPentagon(int a, int b, int c, int d, int e)
     {
         if (a >= b || b >= c || c >= d || d >= e) throw new ArgumentException("Invalid Pentagon");
         var pentagonNo = a

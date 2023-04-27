@@ -100,6 +100,24 @@ public static class TestEngine
         }
     }
 
+
+    [DebuggerHidden]
+    public static void Title(string testName, Action action)
+    {
+        Console.WriteLine($"* {testName}");
+        try
+        {
+            action();
+            Console.WriteLine($"{testName} Complete");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[Error] Failed {testName}");
+            if (!(e is TestFailedException)) Console.WriteLine(e.ToString());
+            throw;
+        }
+    }
+
     public class TestFailedException : Exception
     {
         public TestFailedException(string message) : base(message) { }
