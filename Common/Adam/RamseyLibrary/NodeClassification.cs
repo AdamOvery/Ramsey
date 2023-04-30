@@ -8,26 +8,34 @@ namespace Ramsey.Adam.RamseyLibrary
         public Dictionary<int, List<int>> DistancesDictionary { get; }
         public int?[] NodeDistances { get; }
         public int NodeCount { get; private set; }
+        public int GraphNodeCount { get; }
 
-        public NodeClassification(RamseyConfig config, List<int>[] nodeLists)
+        public NodeClassification(int nodeCount, bool[,] edges, List<int>[]? nodeLists)
         {
-            // Don't need to build up lists - We're going to keep those up-to-date in Ramsey Graph
-            //// Build up node lists (These are the same as edges but each node has an list of "on" edges rather than a straight array)
-            //NodeLists = new List<int>[edges.Length];
-            //for (var node1Index = 0; node1Index < config.NodeCount; node1Index++)
-            //{
-            //    NodeLists[node1Index] = new List<int>();
-            //    for (var node2Index = 0; node2Index < config.NodeCount; node2Index++)
-            //    {
-            //        if (edges[node1Index, node2Index])
-            //        {
-            //            NodeLists[node1Index].Add(node2Index);
-            //        }
-            //    }
-            //}
+            GraphNodeCount = nodeCount;
 
-            NodeLists = nodeLists;
-            NodeDistances = new int?[config.NodeCount];
+            if (nodeLists is not null)
+            {
+                NodeLists = nodeLists;
+            }
+            else
+            {
+                // Build up node lists (These are the same as edges but each node has an list of "on" edges rather than a straight array)
+                NodeLists = new List<int>[edges.Length];
+                for (var node1Index = 0; node1Index < nodeCount; node1Index++)
+                {
+                    NodeLists[node1Index] = new List<int>();
+                    for (var node2Index = 0; node2Index < nodeCount; node2Index++)
+                    {
+                        if (edges[node1Index, node2Index])
+                        {
+                            NodeLists[node1Index].Add(node2Index);
+                        }
+                    }
+                }
+            }
+
+            NodeDistances = new int?[nodeCount];
             DistancesDictionary = new Dictionary<int, List<int>>();
         }
 
@@ -45,7 +53,29 @@ namespace Ramsey.Adam.RamseyLibrary
             return GetId(nodeStartIndex, true);
         }
 
-        public bool SetDistances(int distance)
+        public string ClassifyGraph()
+        {
+            var nodeIds = new Dictionary<string, List<int>>();
+
+            for (var nodeIndex = 0; nodeIndex < GraphNodeCount; nodeIndex++)
+            {
+                var nodeId = ClassifyNode(nodeIndex);
+
+                // Add to generic dictionary
+                if (!nodeIds.ContainsKey(nodeId))
+                {
+                    nodeIds.Add(nodeId, new List<int>());
+                }
+                nodeIds[nodeId].Add(nodeIndex);
+            }
+
+            var fullGraphId = string.Join(",", nodeIds.Values.Select(v => v.Count).OrderBy(v => v).Select(v => v.ToString()).ToList()) +
+                "x" + string.Join(",", nodeIds.Keys.OrderBy(k => k).ToList());
+
+            return fullGraphId;
+        }
+
+        private bool SetDistances(int distance)
         {
             DistancesDictionary[distance + 1] = new List<int>();
 
@@ -68,7 +98,7 @@ namespace Ramsey.Adam.RamseyLibrary
             return isFound;
         }
 
-        public string GetId(int nodeIndex, bool childrenOnly)
+        private string GetId(int nodeIndex, bool childrenOnly)
         {
             var childIds = new List<string>();
             foreach (var nodeToIndex in NodeLists[nodeIndex])

@@ -15,12 +15,33 @@ class AdamProgram
         Console.WriteLine("");
 
         // Test Code only
-        ////var graphG6 = "GsOiho";
-        ////var graphG6 = "Ls`?XGRQR@B`Kc";
-        ////var graphG6 = "UsaCB@AQAGI?HGIABGOKJCcoa[``o_U[?LcGD[O?";
-        //var graphG6 = "UsaCAHAQA_K?GcC`@`XHaDH_Xa@QQOKwGJKOK[G?";
+        //var graphG6 = "GJnTUK";
+        //var graphG6 = "GsOiho";
+        //var graphG6 = "Ls`?XGRQR@B`Kc";
+        //var graphG6 = "Ps`A?_KChFCiBoQSKCOoXL_O";
+        //var graphG6 = "UsaCB@AQAGI?HGIABGOKJCcoa[``o_U[?LcGD[O?";
+        //var graphG6 = "Z@?[Ma_WAdPBIQPHJ??AGI_UOAGJ`JG?gWoO?oW[GDO?O_Ty?C@?E@E_Q]??";
         //var graphG6 = "bsaCCA?O?O_aC??`c@O@b?RcHQ?DcA@H?PC_@QO@@Q?DA@MP?RgKADoH?aR?KCbOC_JE?xO@AALC@AJPG?__V?_K@ROO_A@dOG@?_";
         //MatrixGraphAdam testGraph = (MatrixGraphAdam)G6.parse(graphG6, MatrixGraphAdam.factory);
+        //var cliques = CliqueFinderAll.IdentifyCliques(testGraph.edges, 8, 3, false); // GsOiho
+        //var cliques = CliqueFinderAll.IdentifyCliques(testGraph.edges, 13, 4, false); // Ls`?XGRQR@B`Kc
+        //var cliques = CliqueFinderAll.IdentifyCliques(testGraph.edges, 17, 5, false); // Ps`A?_KChFCiBoQSKCOoXL_O
+        //var cliques = CliqueFinderAll.IdentifyCliques(testGraph.edges, 22, 6, false); // UsaCB@AQAGI?HGIABGOKJCcoa[``o_U[?LcGD[O?
+        //var cliques = CliqueFinderAll.IdentifyCliques(testGraph.edges, 27, 7, false); // Z@?[Ma_WAdPBIQPHJ??AGI_UOAGJ`JG?gWoO?oW[GDO?O_Ty?C@?E@E_Q]??
+        //var cliques = CliqueFinderAll.IdentifyCliques(testGraph.edges, 35, 8, false); //bsaCCA?O?O_aC??`c@O@b?RcHQ?DcA@H?PC_@QO@@Q?DA@MP?RgKADoH?aR?KCbOC_JE?xO@AALC@AJPG?__V?_K@ROO_A@dOG@?_
+
+        //Console.WriteLine($"Clique Count: {cliques.Count}");
+
+        //foreach (var clique in cliques)
+        //{
+        //    var cliqueNodes = string.Join(',', clique);
+        //    Console.WriteLine(cliqueNodes);
+        //}
+
+        //var nodeClassification = new NodeClassification(8, testGraph.edges, null);
+        //var graphId = nodeClassification.ClassifyGraph();
+        //Console.WriteLine(graphId);
+
         //var nodeLoops = NodeLoopUtil.FindAllNodeLoops(testGraph.edges);
         //var ramseyEdges = NodeLoopUtil.FindAllRamseyEdges(nodeLoops, testGraph.edges.GetLength(0));
         //var edgeCounts = new Dictionary<int, int>();

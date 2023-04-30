@@ -87,7 +87,7 @@
 
             do
             {
-                var nodeClassification = new NodeClassification(Config, graphEdges.NodeLists);
+                var nodeClassification = new NodeClassification(Config.NodeCount, graphEdges.Edges, graphEdges.NodeLists);
 
                 var nodeIds = new Dictionary<string, List<int>>();
                 var minIds = new Dictionary<string, List<int>>();
